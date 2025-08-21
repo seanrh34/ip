@@ -16,15 +16,28 @@ public class JohnChatBot{
         System.out.println(greetingMsg);
 
         Scanner sc = new Scanner(System.in);
+
+
+        // Variables
         boolean exit = false;
+        String[] text_list = new String[100];
+        int text_count = 0;
 
         while (sc.hasNextLine() && !exit) {
             String input = sc.nextLine();
             if (input.equals("bye")) {
                 System.out.println(exitMsg);
                 exit = true;
+            } else if (input.equals("list")) {
+                System.out.println(LINE);
+                for (int i = 0; i < text_count; i++) {
+                    System.out.println((i+1)  + ". " + text_list[i]);
+                }
+                System.out.println(LINE);
             } else {
-                System.out.println(LINE + input + '\n' + LINE);
+                text_list[text_count] = input;
+                text_count++;
+                System.out.println(LINE + "added: " + input + '\n' + LINE);
             }
         }
     }
