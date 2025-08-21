@@ -13,5 +13,15 @@ src/main/resources/docs/
 *.iml
 bin/
 
+# Compiled class files
+*.class
+
+# Log files
+*.log
+
+# Others
+*.tmp
+*.swp
+
 /text-ui-test/ACTUAL.TXT
 text-ui-test/EXPECTED-UNIX.TXT
