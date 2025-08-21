@@ -18,15 +18,15 @@ public class JohnChatBot{
 
 
     // For regex
-    // Matches "todo <desc>"
+    // Matches "todo <task_name>"
     private static final Pattern TODO_PATTERN =
             Pattern.compile("^todo\\s+(.+)$", Pattern.CASE_INSENSITIVE);
 
-    // Matches "deadline <desc> /by <deadline>"
+    // Matches "deadline <task_name> /by <time>"
     private static final Pattern DEADLINE_PATTERN =
             Pattern.compile("^deadline\\s+(.+)\\s+/by\\s+(.+)$", Pattern.CASE_INSENSITIVE);
 
-    // Matches "event <desc> /from <start> /to <end>"
+    // Matches "event <desc> /from <start_time> /to <end_time>"
     private static final Pattern EVENT_PATTERN =
             Pattern.compile("^event\\s+(.+)\\s+/from\\s+(.+)\\s+/to\\s+(.+)$", Pattern.CASE_INSENSITIVE);
 
@@ -133,6 +133,29 @@ public class JohnChatBot{
                             + new_task + "\n"
                             + "Now you have " + task_list.size() + " task(s) left in the list");
                     System.out.print(LINE);
+                } else if (input.startsWith("delete")) {
+                    String[] split = input.split(" ");
+                    if (split.length < 2 || split[1].trim().isEmpty()) {
+                        throw new JohnException("Invalid format for delete. Usage: delete <task_number>");
+                    }
+                    try {
+                        int idx1Based = Integer.parseInt(split[1].trim());
+                        int idx = idx1Based - 1; // convert to 0-based
+                        if (idx < 0 || idx >= task_list.size()) {
+                            throw new JohnException("Invalid index! Please enter a number between 1 and "
+                                    + task_list.size());
+                        }
+
+                        Task removed = task_list.remove(idx);
+
+                        System.out.print(LINE);
+                        System.out.println("Noted. I've removed this task:\n"
+                                + removed + "\n" +
+                                "Now you have " + task_list.size() + " task(s) in the list.");
+                        System.out.print(LINE);
+                    } catch (NumberFormatException e) {
+                        throw new JohnException("Invalid index! Task number must be a whole number.");
+                    }
                 } else {
                     throw new JohnException("This command is not recognised, here is the list of valid inputs:\n"
                             + "1. bye - Exit the chatbot\n"
