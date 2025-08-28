@@ -4,14 +4,23 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import java.io.IOException;
+
+import java.nio.file.Path;
+
+/**
+ * This is the class instantiates a new instance of JohnChatBot
+ */
 public class JohnChatBot{
-    // Fixed Messages
+    private static final Path SAVE_PATH = Path.of("data", "johnChatBot.txt");  // ./data/johnChatBot.txt
+
+
+    // Re-usable messages for the chatbot
     private static final String LINE = "=================================================\n";
     private static final String greetingMsg = LINE
             + "Hello! I'm JohnChatBot.\n"
             + "What can I do for you?\n"
             + LINE;
-
     private static final String exitMsg = LINE
             + "Bye. Hope to see you again soon!\n"
             + LINE;
@@ -30,15 +39,28 @@ public class JohnChatBot{
     private static final Pattern EVENT_PATTERN =
             Pattern.compile("^event\\s+(.+)\\s+/from\\s+(.+)\\s+/to\\s+(.+)$", Pattern.CASE_INSENSITIVE);
 
+    /**
+     * The main method for this class for taking in user input and printing out outpus
+     */
     public static void main(String[] args) {
         System.out.println(greetingMsg);
 
         Scanner sc = new Scanner(System.in);
 
-
         // Variables
         boolean exit = false;
-        List<Task> task_list = new ArrayList<>();
+        List<Task> task_list;
+
+        // Check the local storage for task history .txt file
+        Storage storage = new Storage(Path.of("data", "duke.txt"));
+        try {
+            task_list = storage.load();
+        } catch (IOException e) {
+            System.out.print(LINE);
+            System.out.println("Warning: Could not load saved tasks. Starting with an empty list.");
+            System.out.print(LINE);
+            task_list = new ArrayList<>();
+        }
 
         while (sc.hasNextLine() && !exit) {
             String input = sc.nextLine();
@@ -177,6 +199,17 @@ public class JohnChatBot{
                 System.out.println(e.getMessage());
                 System.out.print(LINE);
             }
+            saveTasks(storage, task_list);
+        }
+    }
+
+    private static void saveTasks(Storage storage, List<Task> taskList) {
+        try {
+            storage.save(taskList);
+        } catch (IOException e) {
+            System.out.print(LINE);
+            System.out.println("Warning: Failed to save tasks to disk.");
+            System.out.print(LINE);
         }
     }
 }
