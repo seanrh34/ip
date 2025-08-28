@@ -43,6 +43,21 @@ public class Task {
         this.isDone = false;
    }
 
+    /**
+     *
+     */
+   public String toFileFormatString() {
+       String doneStr = "";
+
+       if (this.isDone) {
+           doneStr = "Done";
+       } else {
+           doneStr = "Not Done";
+       }
+
+       return doneStr + " | " + description;
+   }
+
    @Override
     public String toString(){
         return "[" + this.getStatusIcon() + "] " + this.description;
