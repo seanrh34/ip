@@ -3,18 +3,19 @@ plugins {
     id 'application'
 }
 
-repositories {
-    mavenCentral()
-}
+repositories { mavenCentral() }
 
 dependencies {
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.10.0'
-    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.10.0'
+    testRuntimeOnly   group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.10.0'
+}
+
+application {
+    mainClass = 'john.JohnChatBot'
 }
 
 test {
     useJUnitPlatform()
-
     testLogging {
         events "passed", "skipped", "failed"
         showExceptions true
@@ -25,10 +26,14 @@ test {
     }
 }
 
-application {
-    mainClass = 'john.JohnChatBot'
-}
-
 tasks.run {
     standardInput = System.in
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'john.JohnChatBot'
+        )
+    }
 }
