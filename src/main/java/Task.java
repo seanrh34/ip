@@ -7,7 +7,8 @@ public class Task {
     protected boolean isDone;
 
     /**
-     * Function to create a new Task object
+     * Function to create a new instance of a basic Task
+     * @param description
      */
     public Task(String description) {
         this.description = description;
@@ -16,6 +17,7 @@ public class Task {
 
     /**
      * Function to get the icon that shows whether a task is done or not
+     * @return
      */
     public String getStatusIcon() {
         return (isDone ? "X" : " "); // mark done task with X
@@ -44,7 +46,8 @@ public class Task {
    }
 
     /**
-     *
+     * Function to return a string representation of the task in a format compatible with the .txt storage
+     * @return
      */
    public String toFileFormatString() {
        String doneStr = "";

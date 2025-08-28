@@ -25,17 +25,13 @@ public class JohnChatBot{
 
 
     // For regex
-
-
     // Matches "todo <task_name>"
     private static final Pattern TODO_PATTERN =
             Pattern.compile("^todo\\s+(.+)$", Pattern.CASE_INSENSITIVE);
 
-
     // Matches "deadline <task_name> /by <time>"
     private static final Pattern DEADLINE_PATTERN =
             Pattern.compile("^deadline\\s+(.+)\\s+/by\\s+(.+)$", Pattern.CASE_INSENSITIVE);
-
 
     // Matches "event <desc> /from <start_time> /to <end_time>"
     private static final Pattern EVENT_PATTERN =
