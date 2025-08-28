@@ -4,37 +4,50 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import java.nio.file.Path;
+
+/**
+ * This is the class instantiates a new instance of JohnChatBot
+ */
 public class JohnChatBot{
-    // Fixed Messages
+    private static final Path SAVE_PATH = Path.of("data", "johnChatBot.txt");  // ./data/johnChatBot.txt
+
+
+    // Re-usable messages for the chatbot
     private static final String LINE = "=================================================\n";
     private static final String greetingMsg = LINE
             + "Hello! I'm JohnChatBot.\n"
             + "What can I do for you?\n"
             + LINE;
-
     private static final String exitMsg = LINE
             + "Bye. Hope to see you again soon!\n"
             + LINE;
 
 
     // For regex
+
+
     // Matches "todo <task_name>"
     private static final Pattern TODO_PATTERN =
             Pattern.compile("^todo\\s+(.+)$", Pattern.CASE_INSENSITIVE);
+
 
     // Matches "deadline <task_name> /by <time>"
     private static final Pattern DEADLINE_PATTERN =
             Pattern.compile("^deadline\\s+(.+)\\s+/by\\s+(.+)$", Pattern.CASE_INSENSITIVE);
 
+
     // Matches "event <desc> /from <start_time> /to <end_time>"
     private static final Pattern EVENT_PATTERN =
             Pattern.compile("^event\\s+(.+)\\s+/from\\s+(.+)\\s+/to\\s+(.+)$", Pattern.CASE_INSENSITIVE);
 
+    /**
+     * The main method for this class for taking in user input and printing out outpus
+     */
     public static void main(String[] args) {
         System.out.println(greetingMsg);
 
         Scanner sc = new Scanner(System.in);
-
 
         // Variables
         boolean exit = false;
