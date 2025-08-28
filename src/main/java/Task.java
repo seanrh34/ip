@@ -27,6 +27,10 @@ public class Task {
         return this.description;
    }
 
+   public boolean getIsDone() {
+        return this.isDone;
+   }
+
    public void setDesc(String newDesc) {
         this.description = newDesc;
    }

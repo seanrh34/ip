@@ -6,15 +6,16 @@ import java.util.regex.Pattern;
 
 import java.io.IOException;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+
 import java.nio.file.Path;
 
 /**
  * This is the class instantiates a new instance of JohnChatBot
  */
-public class JohnChatBot{
-    private static final Path SAVE_PATH = Path.of("data", "johnChatBot.txt");  // ./data/johnChatBot.txt
-
-
+public class JohnChatBot {
     // Re-usable messages for the chatbot
     private static final String LINE = "=================================================\n";
     private static final String greetingMsg = LINE
@@ -24,7 +25,6 @@ public class JohnChatBot{
     private static final String exitMsg = LINE
             + "Bye. Hope to see you again soon!\n"
             + LINE;
-
 
     // For regex
     // Matches "todo <task_name>"
@@ -39,8 +39,12 @@ public class JohnChatBot{
     private static final Pattern EVENT_PATTERN =
             Pattern.compile("^event\\s+(.+)\\s+/from\\s+(.+)\\s+/to\\s+(.+)$", Pattern.CASE_INSENSITIVE);
 
+    // Strict formatter: DD/MM/YYYY HHMM (single-digit day/month allowed)
+    private static final DateTimeFormatter DMY_HM = DateTimeFormatter.ofPattern("d/M/yyyy HHmm");
+
+    private static final Storage STORAGE = new Storage(Path.of("data", "johnChatBot.txt"));
     /**
-     * The main method for this class for taking in user input and printing out outpus
+     * The main method for this class for taking in user input and printing out output
      */
     public static void main(String[] args) {
         System.out.println(greetingMsg);
@@ -52,9 +56,8 @@ public class JohnChatBot{
         List<Task> task_list;
 
         // Check the local storage for task history .txt file
-        Storage storage = new Storage(Path.of("data", "duke.txt"));
         try {
-            task_list = storage.load();
+            task_list = STORAGE.load();
         } catch (IOException e) {
             System.out.print(LINE);
             System.out.println("Warning: Could not load saved tasks. Starting with an empty list.");
@@ -69,14 +72,16 @@ public class JohnChatBot{
                 if (input.equals("bye")) {
                     System.out.println(exitMsg);
                     exit = true;
+
                 } else if (input.equals("list")) {
                     System.out.print(LINE);
                     System.out.println("Here are the tasks in your list:\n");
                     for (int i = 0; i < task_list.size(); i++) {
                         Task curTask = task_list.get(i);
-                        System.out.println((i+1)  + ". " + curTask.toString());
+                        System.out.println((i + 1) + ". " + curTask);
                     }
                     System.out.print(LINE);
+
                 } else if (input.startsWith("mark") || input.startsWith("unmark")) {
                     String[] splitInput = input.split(" ");
                     if (splitInput.length == 2) {
@@ -92,18 +97,18 @@ public class JohnChatBot{
 
                             if (splitInput[0].equals("mark")) {
                                 curTask.mark();
-                                System.out.println("Nice! I've marked this task as done:\n"
-                                        + curTask);
+                                System.out.println("Nice! I've marked this task as done:\n" + curTask);
                             } else if (splitInput[0].equals("unmark")) {
                                 curTask.unmark();
-                                System.out.println("OK, I've marked this task as not done yet:\n"
-                                        + curTask);
+                                System.out.println("OK, I've marked this task as not done yet:\n" + curTask);
                             }
                         } catch (NumberFormatException e) {
                             System.out.println("Invalid input! Please enter a number between 1 and "
                                     + task_list.size());
                         }
                     }
+                    System.out.print(LINE);
+
                 } else if (input.startsWith("todo") || input.startsWith("deadline") || input.startsWith("event")) {
                     Matcher m;
 
@@ -123,38 +128,62 @@ public class JohnChatBot{
                         m = DEADLINE_PATTERN.matcher(input);
                         if (m.matches()) {
                             String desc = m.group(1).trim();
-                            String by = m.group(2).trim();
-                            if (desc.isEmpty() || by.isEmpty()) {
-                                throw new JohnException("A deadline requires both a description and a /by time.");
+                            String byStr = m.group(2).trim();
+                            if (desc.isEmpty() || byStr.isEmpty()) {
+                                throw new JohnException(
+                                        "A deadline requires <desc> and /by <date time>. " +
+                                                "Example: deadline return book /by 28/8/2025 1800");
                             }
-                            task_list.add(new Deadline(desc, by));
+                            try {
+                                LocalDateTime by = LocalDateTime.parse(byStr, DMY_HM);
+                                task_list.add(new Deadline(desc, by));
+                            } catch (DateTimeParseException ex) {
+                                throw new JohnException(
+                                        "Invalid date/time. Use only DD/MM/YYYY HHMM, e.g. 28/8/2025 1800.");
+                            }
                         } else {
-                            throw new JohnException("Invalid format for deadline. " +
-                                    "Usage: deadline <task_name> /by <time>");
+                            throw new JohnException(
+                                    "Invalid format for deadline. Usage: deadline <desc> /by <date time> " +
+                                            "(DD/MM/YYYY HHMM, e.g. 28/8/2025 1800)");
                         }
 
                     } else if (input.startsWith("event")) {
                         m = EVENT_PATTERN.matcher(input);
                         if (m.matches()) {
                             String desc = m.group(1).trim();
-                            String from = m.group(2).trim();
-                            String to = m.group(3).trim();
-                            if (desc.isEmpty() || from.isEmpty() || to.isEmpty()) {
-                                throw new JohnException("An event requires a description, /from time, and /to time.");
+                            String fromStr = m.group(2).trim();
+                            String toStr = m.group(3).trim();
+
+                            if (desc.isEmpty() || fromStr.isEmpty() || toStr.isEmpty()) {
+                                throw new JohnException(
+                                        "An event requires a description, /from time, and /to time. " +
+                                                "Example: event meeting /from 28/8/2025 1800 /to 28/8/2025 2000");
                             }
-                            task_list.add(new Event(desc, from, to));
+
+                            try {
+                                LocalDateTime from = LocalDateTime.parse(fromStr, DMY_HM);
+                                LocalDateTime to = LocalDateTime.parse(toStr, DMY_HM);
+                                task_list.add(new Event(desc, from, to));
+                            } catch (DateTimeParseException e) {
+                                throw new JohnException(
+                                        "Invalid date/time for event. Use only DD/MM/YYYY HHMM, e.g. 28/8/2025 1800.");
+                            }
+
                         } else {
-                            throw new JohnException("Oops! Invalid format for event. " +
-                                    "Usage: event <task_name> /from <start_time> /to <end_time>");
+                            throw new JohnException(
+                                    "Invalid format for event. Usage: event <task_name> " +
+                                            "/from <start_time> /to <end_time> " +
+                                            "(DD/MM/YYYY HHMM, e.g. 28/8/2025 1800)");
                         }
                     }
 
-                    Task new_task = task_list.get(task_list.size()-1);
+                    Task new_task = task_list.get(task_list.size() - 1);
                     System.out.print(LINE);
                     System.out.println("Got it. I've added this task:\n"
                             + new_task + "\n"
                             + "Now you have " + task_list.size() + " task(s) left in the list");
                     System.out.print(LINE);
+
                 } else if (input.startsWith("delete")) {
                     String[] split = input.split(" ");
                     if (split.length < 2 || split[1].trim().isEmpty()) {
@@ -178,28 +207,33 @@ public class JohnChatBot{
                     } catch (NumberFormatException e) {
                         throw new JohnException("Invalid index! Task number must be a whole number.");
                     }
+
                 } else {
-                    throw new JohnException("This command is not recognised, here is the list of valid inputs:\n"
+                    throw new JohnException(
+                            "This command is not recognised, here is the list of valid inputs:\n"
                             + "1. bye - Exit the chatbot\n"
                             + "2. list - List all current tasks\n"
-                            + "3. mark <task_number> - Mark the task that corresponds to task_number from the" +
-                            " \"list\" command as done.\n"
-                            + "4. unmark <task_number> - Unmark the task that corresponds to task_number from the" +
-                            " \"list\" command as undone.\n"
-                            + "5. todo <task_name> - Add a new todo task with no deadlines or duration" +
-                            "with the name <task_name>\n"
-                            + "6. deadline <task_name> /by <time> - Add a new deadline task with a deadlines" +
-                            "with the name <task_name> and a deadline by <time>\n"
-                            + "7. event <task_name> /from <start_time> /to <end_time> " +
-                            "- Add a new todo task with a duration" +
-                            "with the name <task_name> from <start_time> to <end_time>\n");
+                            + "3. mark <task_number> - Mark the task that corresponds to task_number from the"
+                            + " \"list\" command as done.\n"
+                            + "4. unmark <task_number> - Unmark the task that corresponds to task_number from the"
+                            + " \"list\" command as undone.\n"
+                            + "5. todo <task_name> - Add a new todo task with no deadlines or duration "
+                            + "with the name <task_name>\n"
+                            + "6. deadline <task_name> /by <time> - Add a new deadline task with a deadline "
+                            + "with the name <task_name> by <time> (DD/MM/YYYY HHMM)\n"
+                            + "7. event <task_name> /from <start_time> /to <end_time> "
+                            + "- Add a new task with a duration "
+                            + "with the name <task_name> from <start_time> to <end_time> "
+                            + "(DD/MM/YYYY HHMM)\n"
+                    );
                 }
             } catch (JohnException e) {
                 System.out.print(LINE);
                 System.out.println(e.getMessage());
                 System.out.print(LINE);
             }
-            saveTasks(storage, task_list);
+
+            saveTasks(STORAGE, task_list);
         }
     }
 
