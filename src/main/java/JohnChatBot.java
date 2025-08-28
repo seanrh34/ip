@@ -4,6 +4,8 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import java.io.IOException;
+
 import java.nio.file.Path;
 
 /**
@@ -47,7 +49,18 @@ public class JohnChatBot{
 
         // Variables
         boolean exit = false;
-        List<Task> task_list = new ArrayList<>();
+        List<Task> task_list;
+
+        // Check the local storage for task history .txt file
+        Storage storage = new Storage(Path.of("data", "duke.txt"));
+        try {
+            task_list = storage.load();
+        } catch (IOException e) {
+            System.out.print(LINE);
+            System.out.println("Warning: Could not load saved tasks. Starting with an empty list.");
+            System.out.print(LINE);
+            task_list = new ArrayList<>();
+        }
 
         while (sc.hasNextLine() && !exit) {
             String input = sc.nextLine();
@@ -186,6 +199,17 @@ public class JohnChatBot{
                 System.out.println(e.getMessage());
                 System.out.print(LINE);
             }
+            saveTasks(storage, task_list);
+        }
+    }
+
+    private static void saveTasks(Storage storage, List<Task> taskList) {
+        try {
+            storage.save(taskList);
+        } catch (IOException e) {
+            System.out.print(LINE);
+            System.out.println("Warning: Failed to save tasks to disk.");
+            System.out.print(LINE);
         }
     }
 }
