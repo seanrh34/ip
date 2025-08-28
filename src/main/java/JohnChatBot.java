@@ -30,14 +30,14 @@ public class JohnChatBot {
 
     /**
      * Function to start the chatbot application.
-     * @param args command line arguments (unused)
+     * @param args
      */
     public static void main(String[] args) {
         new JohnChatBot("data/johnChatBot.txt").run();
     }
 
     /**
-     * Function to run the main application loop for reading, parsing, executing commands, and persisting state.
+     * Function to run the main application
      */
     public void run() {
         ui.showWelcome();
@@ -102,9 +102,9 @@ public class JohnChatBot {
     }
 
     /**
-     * Function to validate that an index is within in range of 0 to size.
-     * @param idx the index to validate
-     * @param size the number of tasks
+     * Function to check if an index is from 0 to range.
+     * @param idx the index to be checked
+     * @param size the current number of tasks
      * @throws JohnException if the index is out of range
      */
     private static void ensureIndexInRange(int idx, int size) throws JohnException {
