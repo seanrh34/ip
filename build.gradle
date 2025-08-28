@@ -1,7 +1,6 @@
 plugins {
     id 'java'
     id 'application'
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
 repositories {
@@ -18,7 +17,6 @@ test {
 
     testLogging {
         events "passed", "skipped", "failed"
-
         showExceptions true
         exceptionFormat "full"
         showCauses true
@@ -28,14 +26,9 @@ test {
 }
 
 application {
-    mainClass.set("john.JohnChatBot")
+    mainClass = 'john.JohnChatBot'
 }
 
-shadowJar {
-    archiveBaseName = "john"
-    archiveClassifier = null
-}
-
-run{
+tasks.run {
     standardInput = System.in
 }
