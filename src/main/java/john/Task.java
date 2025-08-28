@@ -1,3 +1,5 @@
+package john;
+
 /**
  * A Task class has the attributes description and isDone, where the former is a string that describes a given task
  * and the latter is a boolean to show whether a task is done or not
