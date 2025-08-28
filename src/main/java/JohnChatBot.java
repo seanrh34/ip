@@ -1,249 +1,115 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import java.io.IOException;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-
 import java.nio.file.Path;
 
 /**
- * This is the class instantiates a new instance of JohnChatBot
+ * Class to wire up the UI, Storage, and TaskList, and to run the chatbot application loop.
  */
 public class JohnChatBot {
-    // Re-usable messages for the chatbot
-    private static final String LINE = "=================================================\n";
-    private static final String greetingMsg = LINE
-            + "Hello! I'm JohnChatBot.\n"
-            + "What can I do for you?\n"
-            + LINE;
-    private static final String exitMsg = LINE
-            + "Bye. Hope to see you again soon!\n"
-            + LINE;
+    private final Storage storage;
+    private final TaskList tasks;
+    private final Ui ui;
 
-    // For regex
-    // Matches "todo <task_name>"
-    private static final Pattern TODO_PATTERN =
-            Pattern.compile("^todo\\s+(.+)$", Pattern.CASE_INSENSITIVE);
-
-    // Matches "deadline <task_name> /by <time>"
-    private static final Pattern DEADLINE_PATTERN =
-            Pattern.compile("^deadline\\s+(.+)\\s+/by\\s+(.+)$", Pattern.CASE_INSENSITIVE);
-
-    // Matches "event <desc> /from <start_time> /to <end_time>"
-    private static final Pattern EVENT_PATTERN =
-            Pattern.compile("^event\\s+(.+)\\s+/from\\s+(.+)\\s+/to\\s+(.+)$", Pattern.CASE_INSENSITIVE);
-
-    // Strict formatter: DD/MM/YYYY HHMM (single-digit day/month allowed)
-    private static final DateTimeFormatter DMY_HM = DateTimeFormatter.ofPattern("d/M/yyyy HHmm");
-
-    private static final Storage STORAGE = new Storage(Path.of("data", "johnChatBot.txt"));
     /**
-     * The main method for this class for taking in user input and printing out output
+     * Function to initialize the chatbot with storage and load existing tasks if available.
+     * @param filePath the path to the storage file as a string
+     */
+    public JohnChatBot(String filePath) {
+        this.ui = new Ui();
+        this.storage = new Storage(Path.of(filePath));
+        TaskList loaded;
+        try {
+            loaded = new TaskList(storage.load());
+        } catch (IOException e) {
+            ui.showLine();
+            ui.showError("Warning: Could not load saved tasks. Starting with an empty list.");
+            ui.showLine();
+            loaded = new TaskList();
+        }
+        this.tasks = loaded;
+    }
+
+    /**
+     * Function to start the chatbot application.
+     * @param args
      */
     public static void main(String[] args) {
-        System.out.println(greetingMsg);
+        new JohnChatBot("data/johnChatBot.txt").run();
+    }
 
-        Scanner sc = new Scanner(System.in);
+    /**
+     * Function to run the main application
+     */
+    public void run() {
+        ui.showWelcome();
+        boolean isExit = false;
 
-        // Variables
-        boolean exit = false;
-        List<Task> task_list;
-
-        // Check the local storage for task history .txt file
-        try {
-            task_list = STORAGE.load();
-        } catch (IOException e) {
-            System.out.print(LINE);
-            System.out.println("Warning: Could not load saved tasks. Starting with an empty list.");
-            System.out.print(LINE);
-            task_list = new ArrayList<>();
-        }
-
-        while (sc.hasNextLine() && !exit) {
-            String input = sc.nextLine();
-
+        while (!isExit && ui.hasNextLine()) {
+            String fullCommand = ui.readCommand();
             try {
-                if (input.equals("bye")) {
-                    System.out.println(exitMsg);
-                    exit = true;
+                Parser.Parsed p = Parser.parse(fullCommand);
+                ui.showLine();
 
-                } else if (input.equals("list")) {
-                    System.out.print(LINE);
-                    System.out.println("Here are the tasks in your list:\n");
-                    for (int i = 0; i < task_list.size(); i++) {
-                        Task curTask = task_list.get(i);
-                        System.out.println((i + 1) + ". " + curTask);
-                    }
-                    System.out.print(LINE);
+                switch (p.kind) {
+                    case EXIT:
+                        ui.showGoodbye();
+                        isExit = true;
+                        break;
 
-                } else if (input.startsWith("mark") || input.startsWith("unmark")) {
-                    String[] splitInput = input.split(" ");
-                    if (splitInput.length == 2) {
-                        try {
-                            int index = Integer.parseInt(splitInput[1]) - 1;
-                            if (index < 0 || index >= task_list.size()) {
-                                System.out.println("Invalid index! Please enter a number between 1 and "
-                                        + task_list.size());
-                                continue;
-                            }
+                    case LIST:
+                        ui.showList(tasks);
+                        break;
 
-                            Task curTask = task_list.get(index);
+                    case ADD:
+                        tasks.add(p.task);
+                        ui.showAdded(p.task, tasks.size());
+                        storage.save(tasks.asList());
+                        break;
 
-                            if (splitInput[0].equals("mark")) {
-                                curTask.mark();
-                                System.out.println("Nice! I've marked this task as done:\n" + curTask);
-                            } else if (splitInput[0].equals("unmark")) {
-                                curTask.unmark();
-                                System.out.println("OK, I've marked this task as not done yet:\n" + curTask);
-                            }
-                        } catch (NumberFormatException e) {
-                            System.out.println("Invalid input! Please enter a number between 1 and "
-                                    + task_list.size());
-                        }
-                    }
-                    System.out.print(LINE);
-
-                } else if (input.startsWith("todo") || input.startsWith("deadline") || input.startsWith("event")) {
-                    Matcher m;
-
-                    if (input.startsWith("todo")) {
-                        m = TODO_PATTERN.matcher(input);
-                        if (m.matches()) {
-                            String desc = m.group(1).trim();
-                            if (desc.isEmpty()) {
-                                throw new JohnException("The description of a todo cannot be empty.");
-                            }
-                            task_list.add(new ToDo(desc));
-                        } else {
-                            throw new JohnException("Invalid format for todo. Usage: todo <task_name>");
-                        }
-
-                    } else if (input.startsWith("deadline")) {
-                        m = DEADLINE_PATTERN.matcher(input);
-                        if (m.matches()) {
-                            String desc = m.group(1).trim();
-                            String byStr = m.group(2).trim();
-                            if (desc.isEmpty() || byStr.isEmpty()) {
-                                throw new JohnException(
-                                        "A deadline requires <desc> and /by <date time>. " +
-                                                "Example: deadline return book /by 28/8/2025 1800");
-                            }
-                            try {
-                                LocalDateTime by = LocalDateTime.parse(byStr, DMY_HM);
-                                task_list.add(new Deadline(desc, by));
-                            } catch (DateTimeParseException ex) {
-                                throw new JohnException(
-                                        "Invalid date/time. Use only DD/MM/YYYY HHMM, e.g. 28/8/2025 1800.");
-                            }
-                        } else {
-                            throw new JohnException(
-                                    "Invalid format for deadline. Usage: deadline <desc> /by <date time> " +
-                                            "(DD/MM/YYYY HHMM, e.g. 28/8/2025 1800)");
-                        }
-
-                    } else if (input.startsWith("event")) {
-                        m = EVENT_PATTERN.matcher(input);
-                        if (m.matches()) {
-                            String desc = m.group(1).trim();
-                            String fromStr = m.group(2).trim();
-                            String toStr = m.group(3).trim();
-
-                            if (desc.isEmpty() || fromStr.isEmpty() || toStr.isEmpty()) {
-                                throw new JohnException(
-                                        "An event requires a description, /from time, and /to time. " +
-                                                "Example: event meeting /from 28/8/2025 1800 /to 28/8/2025 2000");
-                            }
-
-                            try {
-                                LocalDateTime from = LocalDateTime.parse(fromStr, DMY_HM);
-                                LocalDateTime to = LocalDateTime.parse(toStr, DMY_HM);
-                                task_list.add(new Event(desc, from, to));
-                            } catch (DateTimeParseException e) {
-                                throw new JohnException(
-                                        "Invalid date/time for event. Use only DD/MM/YYYY HHMM, e.g. 28/8/2025 1800.");
-                            }
-
-                        } else {
-                            throw new JohnException(
-                                    "Invalid format for event. Usage: event <task_name> " +
-                                            "/from <start_time> /to <end_time> " +
-                                            "(DD/MM/YYYY HHMM, e.g. 28/8/2025 1800)");
-                        }
+                    case MARK: {
+                        ensureIndexInRange(p.index, tasks.size());
+                        Task t = tasks.mark(p.index);
+                        ui.showMarked(t);
+                        storage.save(tasks.asList());
+                        break;
                     }
 
-                    Task new_task = task_list.get(task_list.size() - 1);
-                    System.out.print(LINE);
-                    System.out.println("Got it. I've added this task:\n"
-                            + new_task + "\n"
-                            + "Now you have " + task_list.size() + " task(s) left in the list");
-                    System.out.print(LINE);
-
-                } else if (input.startsWith("delete")) {
-                    String[] split = input.split(" ");
-                    if (split.length < 2 || split[1].trim().isEmpty()) {
-                        throw new JohnException("Invalid format for delete. Usage: delete <task_number>");
-                    }
-                    try {
-                        int idx1Based = Integer.parseInt(split[1].trim());
-                        int idx = idx1Based - 1; // convert to 0-based
-                        if (idx < 0 || idx >= task_list.size()) {
-                            throw new JohnException("Invalid index! Please enter a number between 1 and "
-                                    + task_list.size());
-                        }
-
-                        Task removed = task_list.remove(idx);
-
-                        System.out.print(LINE);
-                        System.out.println("Noted. I've removed this task:\n"
-                                + removed + "\n" +
-                                "Now you have " + task_list.size() + " task(s) in the list.");
-                        System.out.print(LINE);
-                    } catch (NumberFormatException e) {
-                        throw new JohnException("Invalid index! Task number must be a whole number.");
+                    case UNMARK: {
+                        ensureIndexInRange(p.index, tasks.size());
+                        Task t = tasks.unmark(p.index);
+                        ui.showUnmarked(t);
+                        storage.save(tasks.asList());
+                        break;
                     }
 
-                } else {
-                    throw new JohnException(
-                            "This command is not recognised, here is the list of valid inputs:\n"
-                            + "1. bye - Exit the chatbot\n"
-                            + "2. list - List all current tasks\n"
-                            + "3. mark <task_number> - Mark the task that corresponds to task_number from the"
-                            + " \"list\" command as done.\n"
-                            + "4. unmark <task_number> - Unmark the task that corresponds to task_number from the"
-                            + " \"list\" command as undone.\n"
-                            + "5. todo <task_name> - Add a new todo task with no deadlines or duration "
-                            + "with the name <task_name>\n"
-                            + "6. deadline <task_name> /by <time> - Add a new deadline task with a deadline "
-                            + "with the name <task_name> by <time> (DD/MM/YYYY HHMM)\n"
-                            + "7. event <task_name> /from <start_time> /to <end_time> "
-                            + "- Add a new task with a duration "
-                            + "with the name <task_name> from <start_time> to <end_time> "
-                            + "(DD/MM/YYYY HHMM)\n"
-                    );
+                    case DELETE: {
+                        ensureIndexInRange(p.index, tasks.size());
+                        Task removed = tasks.remove(p.index);
+                        ui.showDeleted(removed, tasks.size());
+                        storage.save(tasks.asList());
+                        break;
+                    }
                 }
             } catch (JohnException e) {
-                System.out.print(LINE);
-                System.out.println(e.getMessage());
-                System.out.print(LINE);
+                ui.showLine();
+                ui.showError(e.getMessage());
+            } catch (IOException ioe) {
+                ui.showLine();
+                ui.showError("Warning: Failed to save tasks to disk.");
+            } finally {
+                ui.showLine();
             }
-
-            saveTasks(STORAGE, task_list);
         }
     }
 
-    private static void saveTasks(Storage storage, List<Task> taskList) {
-        try {
-            storage.save(taskList);
-        } catch (IOException e) {
-            System.out.print(LINE);
-            System.out.println("Warning: Failed to save tasks to disk.");
-            System.out.print(LINE);
+    /**
+     * Function to check if an index is from 0 to range.
+     * @param idx the index to be checked
+     * @param size the current number of tasks
+     * @throws JohnException if the index is out of range
+     */
+    private static void ensureIndexInRange(int idx, int size) throws JohnException {
+        if (idx < 0 || idx >= size) {
+            throw new JohnException("Invalid index! Please enter a number between 1 and " + size);
         }
     }
 }
