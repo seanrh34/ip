@@ -1,3 +1,5 @@
+package john;
+
 import java.io.IOException;
 import java.nio.file.Path;
 
@@ -8,6 +10,14 @@ public class JohnChatBot {
     private final Storage storage;
     private final TaskList tasks;
     private final Ui ui;
+
+    /**
+     * Function to start the chatbot application.
+     * @param args
+     */
+    public static void main(String[] args) {
+        new JohnChatBot("data/johnChatBot.txt").run();
+    }
 
     /**
      * Function to initialize the chatbot with storage and load existing tasks if available.
@@ -26,14 +36,6 @@ public class JohnChatBot {
             loaded = new TaskList();
         }
         this.tasks = loaded;
-    }
-
-    /**
-     * Function to start the chatbot application.
-     * @param args
-     */
-    public static void main(String[] args) {
-        new JohnChatBot("data/johnChatBot.txt").run();
     }
 
     /**

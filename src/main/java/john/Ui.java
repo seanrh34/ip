@@ -1,3 +1,5 @@
+package john;
+
 import java.util.Scanner;
 
 /**
