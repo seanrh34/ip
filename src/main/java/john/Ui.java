@@ -6,33 +6,33 @@ import java.util.Scanner;
  * Class to handle all user interactions such as printing messages and reading commands.
  */
 public class Ui {
-    private static final String LINE = "=================================================\n";
+    private static final String DIVIDER = "=================================================\n";
     private final Scanner sc = new Scanner(System.in);
 
     /**
      * Function to print the welcome message at program start.
      */
     public void showWelcome() {
-        System.out.print(LINE);
+        System.out.print(DIVIDER);
         System.out.println("Hello! I'm JohnChatBot.");
         System.out.println("What can I do for you?");
-        System.out.print(LINE);
+        System.out.print(DIVIDER);
     }
 
     /**
      * Function to print the goodbye message before program exits.
      */
     public void showGoodbye() {
-        System.out.print(LINE);
+        System.out.print(DIVIDER);
         System.out.println("Bye. Hope to see you again soon!");
-        System.out.print(LINE);
+        System.out.print(DIVIDER);
     }
 
     /**
      * Function to print a divider line for UI readability.
      */
     public void showLine() {
-        System.out.print(LINE);
+        System.out.print(DIVIDER);
     }
 
     /**
