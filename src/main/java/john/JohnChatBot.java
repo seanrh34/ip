@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 /**
- * Class to initialise the UI, Storage, and TaskList, and to begin the chatbot application loop.
+ * Class to initialize the UI, Storage, and TaskList, and to start the chatbot application loop.
  */
 public class JohnChatBot {
     private final Storage storage;
@@ -21,6 +21,7 @@ public class JohnChatBot {
 
     /**
      * Function to initialize the chatbot with storage and load existing tasks if available.
+     * Tasks will be saved into the hard disk under ./data/johnChatBot.txt
      * @param filePath the path to the storage file as a string
      */
     public JohnChatBot(String filePath) {
