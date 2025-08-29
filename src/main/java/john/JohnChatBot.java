@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 /**
- * Class to wire up the UI, Storage, and TaskList, and to run the chatbot application loop.
+ * Class to initialise the UI, Storage, and TaskList, and to begin the chatbot application loop.
  */
 public class JohnChatBot {
     private final Storage storage;

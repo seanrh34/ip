@@ -16,6 +16,7 @@ import java.util.List;
 
 /**
  * Class to help JohnChatBot manage its task history by storing them in the hard disk
+ * The history will be stored as a txt file in ./data/johnChatBot.txt
  */
 public class Storage {
     private final Path file;
