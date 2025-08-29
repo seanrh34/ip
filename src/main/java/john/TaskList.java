@@ -2,6 +2,7 @@ package john;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Class to wrap and manage the list of tasks, providing operations to mutate and access tasks.
@@ -78,6 +79,18 @@ public class TaskList {
         Task t = tasks.get(index);
         t.unmark();
         return t;
+    }
+
+    /**
+     * Function to find tasks whose descriptions contain the given keyword (case-insensitive).
+     * @param keyword the keyword to look for
+     * @return a new list containing matching tasks in their current order
+     */
+    public List<Task> find(String keyword) {
+        String needle = keyword.toLowerCase();
+        return tasks.stream()
+                .filter(t -> t.getDesc().toLowerCase().contains(needle))
+                .collect(Collectors.toList());
     }
 
     /**

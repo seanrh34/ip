@@ -1,6 +1,7 @@
 package john;
 
 import java.util.Scanner;
+import java.util.List;
 
 /**
  * Class to handle all user interactions such as printing messages and reading commands.
@@ -57,6 +58,22 @@ public class Ui {
      */
     public void showError(String message) {
         System.out.println(message);
+    }
+
+    /**
+     * Function to print the results of a find operation.
+     * If no tasks match, a friendly message is shown.
+     * @param matches the list of tasks that matched the query
+     */
+    public void showFound(List<Task> matches) {
+        if (matches.isEmpty()) {
+            System.out.println("No matching tasks found.");
+            return;
+        }
+        System.out.println("Here are the matching tasks in your list:\n");
+        for (int i = 0; i < matches.size(); i++) {
+            System.out.println((i + 1) + ". " + matches.get(i));
+        }
     }
 
     /**

@@ -3,6 +3,8 @@ package john;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import java.util.List;
+
 /**
  * Class to initialize the UI, Storage, and TaskList, and to start the chatbot application loop.
  */
@@ -81,6 +83,12 @@ public class JohnChatBot {
                         Task t = tasks.unmark(p.index);
                         ui.showUnmarked(t);
                         storage.save(tasks.asList());
+                        break;
+                    }
+
+                    case FIND: {
+                        List<Task> matches = tasks.find(p.query);
+                        ui.showFound(matches);
                         break;
                     }
 

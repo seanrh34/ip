@@ -29,6 +29,10 @@ public final class Parser {
     private static final Pattern EVENT_PATTERN =
             Pattern.compile("^event\\s+(.+)\\s+/from\\s+(.+)\\s+/to\\s+(.+)$", Pattern.CASE_INSENSITIVE);
 
+    // Matches "find <keyword>"
+    private static final Pattern FIND_PATTERN =
+            Pattern.compile("^find\\s+(.+)$", Pattern.CASE_INSENSITIVE);
+
     /**
      * Function to parse a raw user command string into a Parsed object representing the action.
      * @param input the raw user command
@@ -41,7 +45,17 @@ public final class Parser {
         if (s.equalsIgnoreCase("bye"))  return Parsed.exit();
         if (s.equalsIgnoreCase("list")) return Parsed.list();
 
-        if (s.startsWith("mark") || s.startsWith("unmark") || s.startsWith("delete")) {
+        if (s.startsWith("find")) {
+            Matcher m = FIND_PATTERN.matcher(s);
+            if (!m.matches()) {
+                throw new JohnException("Invalid format for find. Usage: find <keyword>");
+            }
+            String keyword = m.group(1).trim();
+            if (keyword.isEmpty()) {
+                throw new JohnException("The keyword for find cannot be empty.");
+            }
+            return Parsed.find(keyword);
+        } else if (s.startsWith("mark") || s.startsWith("unmark") || s.startsWith("delete")) {
             String[] split = s.split("\\s+");
             if (split.length != 2) {
                 throw new JohnException("Invalid input! Please provide a single task number.");
@@ -130,13 +144,14 @@ public final class Parser {
      * Class to represent the parsed result of a user command.
      */
     public static final class Parsed {
-        public enum Kind { EXIT, LIST, ADD, MARK, UNMARK, DELETE }
+        public enum Kind { EXIT, LIST, ADD, MARK, UNMARK, DELETE, FIND }
         public final Kind kind;
-        public final Task task; // for ADD
-        public final int index; // for mark/unmark/delete
+        public final Task task;   // for ADD
+        public final int index;   // for mark/unmark/delete
+        public final String query; // for find
 
         /**
-         * Function to construct a parsed object.
+         * Function to construct a parsed object (non-query actions).
          * @param k the kind of parsed action
          * @param t the task if any (for ADD)
          * @param i the index if any (for mark/unmark/delete)
@@ -145,46 +160,44 @@ public final class Parser {
             this.kind = k;
             this.task = t;
             this.index = i;
+            this.query = null;
         }
 
         /**
-         * Function to create a parsed object representing program exit.
-         * @return a Parsed instance for EXIT
+         * Function to construct a parsed object for query actions such as find.
+         * @param k the kind of parsed action
+         * @param q the query string (e.g., keyword for find)
          */
-        public static Parsed exit() { return new Parsed(Kind.EXIT, null, -1); }
+        private Parsed(Kind k, String q) {
+            this.kind = k;
+            this.task = null;
+            this.index = -1;
+            this.query = q;
+        }
 
-        /**
-         * Function to create a parsed object representing list action.
-         * @return a Parsed instance for LIST
-         */
-        public static Parsed list() { return new Parsed(Kind.LIST, null, -1); }
+        /** Function to create a parsed object representing program exit. */
+        public static Parsed exit()  { return new Parsed(Kind.EXIT, null, -1); }
 
-        /**
-         * Function to create a parsed object representing adding a task.
-         * @param t the task to add
-         * @return a Parsed instance for ADD
-         */
+        /** Function to create a parsed object representing list action. */
+        public static Parsed list()  { return new Parsed(Kind.LIST, null, -1); }
+
+        /** Function to create a parsed object representing adding a task. */
         public static Parsed add(Task t) { return new Parsed(Kind.ADD, t, -1); }
 
-        /**
-         * Function to create a parsed object representing marking a task.
-         * @param idx the zero-based index of the task to mark
-         * @return a Parsed instance for MARK
-         */
+        /** Function to create a parsed object representing marking a task. */
         public static Parsed mark(int idx) { return new Parsed(Kind.MARK, null, idx); }
 
-        /**
-         * Function to create a parsed object representing unmarking a task.
-         * @param idx the zero-based index of the task to unmark
-         * @return a Parsed instance for UNMARK
-         */
+        /** Function to create a parsed object representing unmarking a task. */
         public static Parsed unmark(int idx) { return new Parsed(Kind.UNMARK, null, idx); }
 
-        /**
-         * Function to create a parsed object representing deleting a task.
-         * @param idx the zero-based index of the task to delete
-         * @return a Parsed instance for DELETE
-         */
+        /** Function to create a parsed object representing deleting a task. */
         public static Parsed delete(int idx) { return new Parsed(Kind.DELETE, null, idx); }
+
+        /**
+         * Function to create a parsed object representing a find action.
+         * @param keyword the keyword to search for in task descriptions
+         * @return a Parsed instance for FIND
+         */
+        public static Parsed find(String keyword) { return new Parsed(Kind.FIND, keyword); }
     }
 }
