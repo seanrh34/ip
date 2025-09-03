@@ -1,16 +1,13 @@
 package john;
 
 import java.io.IOException;
-
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,10 +51,14 @@ public class Storage {
 
         for (String raw : lines) {
             String line = raw.trim();
-            if (line.isEmpty()) continue;
+            if (line.isEmpty()) {
+                continue;
+            }
 
             String[] parts = line.split("\\s*\\|\\s*");
-            if (parts.length < 3) continue;
+            if (parts.length < 3) {
+                continue;
+            }
 
             String type = parts[0];
             String status = parts[1];
@@ -66,53 +67,63 @@ public class Storage {
 
             try {
                 switch (type) {
-                    case "T": {
-                        Task t = new ToDo(desc);
-                        if (isDone) t.mark();
-                        tasks.add(t);
+                case "T": {
+                    Task t = new ToDo(desc);
+                    if (isDone) {
+                        t.mark();
+                    }
+                    tasks.add(t);
+                    break;
+                }
+                case "D": {
+                    if (parts.length < 4) {
                         break;
                     }
-                    case "D": {
-                        if (parts.length < 4) break;
-                        String byStr = stripLabeled(parts[3], "By");
+                    String byStr = stripLabeled(parts[3], "By");
 
-                        LocalDateTime by;
-                        try {
-                            by = LocalDateTime.parse(byStr, DMY_HM);
-                        } catch (DateTimeParseException e1) {
-                            // Invalid date/time format parsed
-                            break;
-                        }
-
-                        Task t = new Deadline(desc, by);
-                        if (isDone) t.mark();
-                        tasks.add(t);
+                    LocalDateTime by;
+                    try {
+                        by = LocalDateTime.parse(byStr, DMY_HM);
+                    } catch (DateTimeParseException e1) {
+                        // Invalid date/time format parsed
                         break;
                     }
-                    case "E": {
-                        if (parts.length < 5) break;
-                        String fromStr = stripLabeled(parts[3], "From");
-                        String toStr   = stripLabeled(parts[4], "To");
 
-                        LocalDateTime from;
-                        LocalDateTime to;
-
-                        try {
-                            from = LocalDateTime.parse(fromStr, DMY_HM);
-                            to   = LocalDateTime.parse(toStr, DMY_HM);
-                        } catch (DateTimeParseException e1) {
-                            // Invalid date/time format parsed
-                            break;
-                        }
-
-                        Task t = new Event(desc, from, to);
-                        if (isDone) t.mark();
-                        tasks.add(t);
+                    Task t = new Deadline(desc, by);
+                    if (isDone) {
+                        t.mark();
+                    }
+                    tasks.add(t);
+                    break;
+                }
+                case "E": {
+                    if (parts.length < 5) {
                         break;
                     }
-                    default:
-                        // Unknown type tag; skip
+                    String fromStr = stripLabeled(parts[3], "From");
+                    String toStr = stripLabeled(parts[4], "To");
+
+                    LocalDateTime from;
+                    LocalDateTime to;
+
+                    try {
+                        from = LocalDateTime.parse(fromStr, DMY_HM);
+                        to = LocalDateTime.parse(toStr, DMY_HM);
+                    } catch (DateTimeParseException e1) {
+                        // Invalid date/time format parsed
                         break;
+                    }
+
+                    Task t = new Event(desc, from, to);
+                    if (isDone) {
+                        t.mark();
+                    }
+                    tasks.add(t);
+                    break;
+                }
+                default:
+                    // Unknown type tag; skip
+                    break;
                 }
             } catch (Exception ex) {
                 System.out.println("Error parsing file!");
@@ -154,10 +165,10 @@ public class Storage {
             } else if (t instanceof Event) {
                 Event e = (Event) t;
                 LocalDateTime from = e.getFrom(); // assumes getters exist
-                LocalDateTime to   = e.getTo();
+                LocalDateTime to = e.getTo();
 
                 String fromStr = from.format(DMY_HM);
-                String toStr   = to.format(DMY_HM);
+                String toStr = to.format(DMY_HM);
 
                 out.add(String.join(" | ",
                         "E",
@@ -194,7 +205,9 @@ public class Storage {
         // Accept "Label:" or "Label" (case-insensitive)
         if (trimmed.regionMatches(true, 0, label, 0, label.length())) {
             String rest = trimmed.substring(label.length()).trim();
-            if (rest.startsWith(":")) rest = rest.substring(1).trim();
+            if (rest.startsWith(":")) {
+                rest = rest.substring(1).trim();
+            }
             return rest;
         }
         return trimmed;

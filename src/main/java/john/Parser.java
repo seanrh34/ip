@@ -1,10 +1,8 @@
 package john;
 
 import java.time.LocalDateTime;
-
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,10 +14,6 @@ public final class Parser {
 
     // Strict formatter: DD/MM/YYYY HHMM (single-digit day/month allowed)
     public static final DateTimeFormatter DMY_HM = DateTimeFormatter.ofPattern("d/M/yyyy HHmm");
-
-    // Matches "todo <task_name>"
-    private static final Pattern TODO_PATTERN =
-            Pattern.compile("^todo\\s+(.+)$", Pattern.CASE_INSENSITIVE);
 
     // Matches "deadline <task_name> /by <time>"
     private static final Pattern DEADLINE_PATTERN =
@@ -33,6 +27,10 @@ public final class Parser {
     private static final Pattern FIND_PATTERN =
             Pattern.compile("^find\\s+(.+)$", Pattern.CASE_INSENSITIVE);
 
+    // Matches "todo <task_name>"
+    private static final Pattern TODO_PATTERN =
+            Pattern.compile("^todo\\s+(.+)$", Pattern.CASE_INSENSITIVE);
+
     /**
      * Function to parse a raw user command string into a Parsed object representing the action.
      * @param input the raw user command
@@ -42,8 +40,12 @@ public final class Parser {
     public static Parsed parse(String input) throws JohnException {
         String s = input.trim();
 
-        if (s.equalsIgnoreCase("bye"))  return Parsed.exit();
-        if (s.equalsIgnoreCase("list")) return Parsed.list();
+        if (s.equalsIgnoreCase("bye")) {
+            return Parsed.exit();
+        }
+        if (s.equalsIgnoreCase("list")) {
+            return Parsed.list();
+        }
 
         if (s.startsWith("find")) {
             Matcher m = FIND_PATTERN.matcher(s);
@@ -70,8 +72,12 @@ public final class Parser {
             if (idx < 0) {
                 throw new JohnException("Invalid index! Use a positive number.");
             }
-            if (s.startsWith("mark"))   return Parsed.mark(idx);
-            if (s.startsWith("unmark")) return Parsed.unmark(idx);
+            if (s.startsWith("mark")) {
+                return Parsed.mark(idx);
+            }
+            if (s.startsWith("unmark")) {
+                return Parsed.unmark(idx);
+            }
             return Parsed.delete(idx);
         }
 
@@ -97,8 +103,8 @@ public final class Parser {
             String byStr = m.group(2).trim();
             if (desc.isEmpty() || byStr.isEmpty()) {
                 throw new JohnException(
-                        "A deadline requires <desc> and /by <date time>. " +
-                                "Example: deadline return book /by 28/8/2025 1800");
+                        "A deadline requires <desc> and /by <date time>. "
+                        + "Example: deadline return book /by 28/8/2025 1800");
             }
             LocalDateTime by = parseDateStrict(byStr);
             return Parsed.add(new Deadline(desc, by));
@@ -115,8 +121,8 @@ public final class Parser {
             String toStr = m.group(3).trim();
             if (desc.isEmpty() || fromStr.isEmpty() || toStr.isEmpty()) {
                 throw new JohnException(
-                        "An event requires a description, /from time, and /to time. " +
-                                "Example: event meeting /from 28/8/2025 1800 /to 28/8/2025 2000");
+                        "An event requires a description, /from time, and /to time. "
+                        + "Example: event meeting /from 28/8/2025 1800 /to 28/8/2025 2000");
             }
             LocalDateTime from = parseDateStrict(fromStr);
             LocalDateTime to = parseDateStrict(toStr);
@@ -144,10 +150,13 @@ public final class Parser {
      * Class to represent the parsed result of a user command.
      */
     public static final class Parsed {
+        /**
+         * Enumeration for fixed items to look out for while parsing
+         */
         public enum Kind { EXIT, LIST, ADD, MARK, UNMARK, DELETE, FIND }
         public final Kind kind;
-        public final Task task;   // for ADD
-        public final int index;   // for mark/unmark/delete
+        public final Task task; // for ADD
+        public final int index; // for mark/unmark/delete
         public final String query; // for find
 
         /**
@@ -176,28 +185,42 @@ public final class Parser {
         }
 
         /** Function to create a parsed object representing program exit. */
-        public static Parsed exit()  { return new Parsed(Kind.EXIT, null, -1); }
+        public static Parsed exit() {
+            return new Parsed(Kind.EXIT, null, -1);
+        }
 
         /** Function to create a parsed object representing list action. */
-        public static Parsed list()  { return new Parsed(Kind.LIST, null, -1); }
+        public static Parsed list() {
+            return new Parsed(Kind.LIST, null, -1);
+        }
 
         /** Function to create a parsed object representing adding a task. */
-        public static Parsed add(Task t) { return new Parsed(Kind.ADD, t, -1); }
+        public static Parsed add(Task t) {
+            return new Parsed(Kind.ADD, t, -1);
+        }
 
         /** Function to create a parsed object representing marking a task. */
-        public static Parsed mark(int idx) { return new Parsed(Kind.MARK, null, idx); }
+        public static Parsed mark(int idx) {
+            return new Parsed(Kind.MARK, null, idx);
+        }
 
         /** Function to create a parsed object representing unmarking a task. */
-        public static Parsed unmark(int idx) { return new Parsed(Kind.UNMARK, null, idx); }
+        public static Parsed unmark(int idx) {
+            return new Parsed(Kind.UNMARK, null, idx);
+        }
 
         /** Function to create a parsed object representing deleting a task. */
-        public static Parsed delete(int idx) { return new Parsed(Kind.DELETE, null, idx); }
+        public static Parsed delete(int idx) {
+            return new Parsed(Kind.DELETE, null, idx);
+        }
 
         /**
          * Function to create a parsed object representing a find action.
          * @param keyword the keyword to search for in task descriptions
          * @return a Parsed instance for FIND
          */
-        public static Parsed find(String keyword) { return new Parsed(Kind.FIND, keyword); }
+        public static Parsed find(String keyword) {
+            return new Parsed(Kind.FIND, keyword);
+        }
     }
 }

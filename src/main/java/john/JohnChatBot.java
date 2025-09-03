@@ -2,7 +2,6 @@ package john;
 
 import java.io.IOException;
 import java.nio.file.Path;
-
 import java.util.List;
 
 /**
@@ -12,15 +11,6 @@ public class JohnChatBot {
     private final Storage storage;
     private final TaskList tasks;
     private final Ui ui;
-
-    /**
-     * Function to start the chatbot application.
-     * @param args
-     */
-    public static void main(String[] args) {
-        new JohnChatBot("data/johnChatBot.txt").run();
-    }
-
     /**
      * Function to initialize the chatbot with storage and load existing tasks if available.
      * Tasks will be saved into the hard disk under ./data/johnChatBot.txt
@@ -40,6 +30,13 @@ public class JohnChatBot {
         }
         this.tasks = loaded;
     }
+    /**
+     * Function to start the chatbot application.
+     * @param args the string input
+     */
+    public static void main(String[] args) {
+        new JohnChatBot("data/johnChatBot.txt").run();
+    }
 
     /**
      * Function to run the main application
@@ -55,50 +52,47 @@ public class JohnChatBot {
                 ui.showLine();
 
                 switch (p.kind) {
-                    case EXIT:
-                        ui.showGoodbye();
-                        isExit = true;
-                        break;
-
-                    case LIST:
-                        ui.showList(tasks);
-                        break;
-
-                    case ADD:
-                        tasks.add(p.task);
-                        ui.showAdded(p.task, tasks.size());
-                        storage.save(tasks.asList());
-                        break;
-
-                    case MARK: {
-                        ensureIndexInRange(p.index, tasks.size());
-                        Task t = tasks.mark(p.index);
-                        ui.showMarked(t);
-                        storage.save(tasks.asList());
-                        break;
-                    }
-
-                    case UNMARK: {
-                        ensureIndexInRange(p.index, tasks.size());
-                        Task t = tasks.unmark(p.index);
-                        ui.showUnmarked(t);
-                        storage.save(tasks.asList());
-                        break;
-                    }
-
-                    case FIND: {
-                        List<Task> matches = tasks.find(p.query);
-                        ui.showFound(matches);
-                        break;
-                    }
-
-                    case DELETE: {
-                        ensureIndexInRange(p.index, tasks.size());
-                        Task removed = tasks.remove(p.index);
-                        ui.showDeleted(removed, tasks.size());
-                        storage.save(tasks.asList());
-                        break;
-                    }
+                case EXIT:
+                    ui.showGoodbye();
+                    isExit = true;
+                    break;
+                case LIST:
+                    ui.showList(tasks);
+                    break;
+                case ADD:
+                    tasks.add(p.task);
+                    ui.showAdded(p.task, tasks.size());
+                    storage.save(tasks.asList());
+                    break;
+                case MARK: {
+                    ensureIndexInRange(p.index, tasks.size());
+                    Task t = tasks.mark(p.index);
+                    ui.showMarked(t);
+                    storage.save(tasks.asList());
+                    break;
+                }
+                case UNMARK: {
+                    ensureIndexInRange(p.index, tasks.size());
+                    Task t = tasks.unmark(p.index);
+                    ui.showUnmarked(t);
+                    storage.save(tasks.asList());
+                    break;
+                }
+                case FIND: {
+                    List<Task> matches = tasks.find(p.query);
+                    ui.showFound(matches);
+                    break;
+                }
+                case DELETE: {
+                    ensureIndexInRange(p.index, tasks.size());
+                    Task removed = tasks.remove(p.index);
+                    ui.showDeleted(removed, tasks.size());
+                    storage.save(tasks.asList());
+                    break;
+                }
+                default: {
+                    break;
+                }
                 }
             } catch (JohnException e) {
                 ui.showLine();

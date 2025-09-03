@@ -1,6 +1,11 @@
 plugins {
     id 'java'
     id 'application'
+    id 'checkstyle'
+}
+
+checkstyle {
+    toolVersion = '11.0.0'
 }
 
 repositories { mavenCentral() }
