@@ -20,8 +20,8 @@ import java.util.Collections;
  */
 public class DialogBox extends HBox {
 
-    private static final Image USER = new Image(DialogBox.class.getResourceAsStream("/images/DaUser.png"));
-    private static final Image JOHN = new Image(DialogBox.class.getResourceAsStream("/images/DaJohn.png"));
+    private static final Image USER = new Image(DialogBox.class.getResourceAsStream("/images/you_dancing.gif"));
+    private static final Image JOHN = new Image(DialogBox.class.getResourceAsStream("/images/john_dancing.gif"));
 
     @FXML
     private Label dialog;

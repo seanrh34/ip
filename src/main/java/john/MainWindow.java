@@ -24,9 +24,6 @@ public class MainWindow extends AnchorPane {
 
     private John john;
 
-    private Image userImage = new Image(this.getClass().getResourceAsStream("/images/DaUser.png"));
-    private Image dukeImage = new Image(this.getClass().getResourceAsStream("/images/DaJohn.png"));
-
     @FXML
     public void initialize() {
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
@@ -34,7 +31,7 @@ public class MainWindow extends AnchorPane {
 
     public void setJohn(John j) {
         this.john = j;
-        dialogContainer.getChildren().add(DialogBox.ofJohn("Hello! I'm JohnChatBot.\nWhat can I do for you?"));
+        dialogContainer.getChildren().add(DialogBox.ofJohn("Greetings. I am John ChatBot.\nWhat can I do for you?"));
     }
 
     @FXML
