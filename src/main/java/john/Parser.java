@@ -12,12 +12,12 @@ import java.util.regex.Pattern;
 public final class Parser {
     private Parser() {}
 
-    // Strict formatter: DD/MM/YYYY HHMM (single-digit day/month allowed)
-    public static final DateTimeFormatter DMY_HM = DateTimeFormatter.ofPattern("d/M/yyyy HHmm");
-
     // Matches "deadline <task_name> /by <time>"
     private static final Pattern DEADLINE_PATTERN =
             Pattern.compile("^deadline\\s+(.+)\\s+/by\\s+(.+)$", Pattern.CASE_INSENSITIVE);
+
+    // Formatter: DD/MM/YYYY HHMM (single-digit day/month allowed)
+    public static final DateTimeFormatter DMY_HM = DateTimeFormatter.ofPattern("d/M/yyyy HHmm");
 
     // Matches "event <desc> /from <start_time> /to <end_time>"
     private static final Pattern EVENT_PATTERN =
@@ -39,15 +39,21 @@ public final class Parser {
      */
     public static Parsed parse(String input) throws JohnException {
         String s = input.trim();
+        String lower = s.toLowerCase();
+        String[] split = s.split("\\s+", 2); // command + args
+        String cmd = split[0];
 
-        if (s.equalsIgnoreCase("bye")) {
+        switch (cmd) {
+        case "bye":
             return Parsed.exit();
-        }
-        if (s.equalsIgnoreCase("list")) {
-            return Parsed.list();
-        }
 
-        if (s.startsWith("find")) {
+        case "list":
+            return Parsed.list();
+
+        case "help":
+            return Parsed.help();
+
+        case "find": {
             Matcher m = FIND_PATTERN.matcher(s);
             if (!m.matches()) {
                 throw new JohnException("Invalid format for find. Usage: find <keyword>");
@@ -57,14 +63,18 @@ public final class Parser {
                 throw new JohnException("The keyword for find cannot be empty.");
             }
             return Parsed.find(keyword);
-        } else if (s.startsWith("mark") || s.startsWith("unmark") || s.startsWith("delete")) {
-            String[] split = s.split("\\s+");
-            if (split.length != 2) {
+        }
+
+        case "mark":
+        case "unmark":
+        case "delete": {
+            String[] parts = s.split("\\s+");
+            if (parts.length != 2) {
                 throw new JohnException("Invalid input! Please provide a single task number.");
             }
             int idx1;
             try {
-                idx1 = Integer.parseInt(split[1]);
+                idx1 = Integer.parseInt(parts[1]);
             } catch (NumberFormatException e) {
                 throw new JohnException("Invalid index! Task number must be a whole number.");
             }
@@ -72,16 +82,17 @@ public final class Parser {
             if (idx < 0) {
                 throw new JohnException("Invalid index! Use a positive number.");
             }
-            if (s.startsWith("mark")) {
+            switch (cmd) {
+            case "mark":
                 return Parsed.mark(idx);
-            }
-            if (s.startsWith("unmark")) {
+            case "unmark":
                 return Parsed.unmark(idx);
+            default:
+                return Parsed.delete(idx);
             }
-            return Parsed.delete(idx);
         }
 
-        if (s.startsWith("todo")) {
+        case "todo": {
             Matcher m = TODO_PATTERN.matcher(s);
             if (!m.matches()) {
                 throw new JohnException("Invalid format for todo. Usage: todo <task_name>");
@@ -93,7 +104,7 @@ public final class Parser {
             return Parsed.add(new ToDo(desc));
         }
 
-        if (s.startsWith("deadline")) {
+        case "deadline": {
             Matcher m = DEADLINE_PATTERN.matcher(s);
             if (!m.matches()) {
                 throw new JohnException(
@@ -104,13 +115,13 @@ public final class Parser {
             if (desc.isEmpty() || byStr.isEmpty()) {
                 throw new JohnException(
                         "A deadline requires <desc> and /by <date time>. "
-                        + "Example: deadline return book /by 28/8/2025 1800");
+                                + "Example: deadline return book /by 28/8/2025 1800");
             }
             LocalDateTime by = parseDateStrict(byStr);
             return Parsed.add(new Deadline(desc, by));
         }
 
-        if (s.startsWith("event")) {
+        case "event": {
             Matcher m = EVENT_PATTERN.matcher(s);
             if (!m.matches()) {
                 throw new JohnException(
@@ -122,14 +133,16 @@ public final class Parser {
             if (desc.isEmpty() || fromStr.isEmpty() || toStr.isEmpty()) {
                 throw new JohnException(
                         "An event requires a description, /from time, and /to time. "
-                        + "Example: event meeting /from 28/8/2025 1800 /to 28/8/2025 2000");
+                                + "Example: event meeting /from 28/8/2025 1800 /to 28/8/2025 2000");
             }
             LocalDateTime from = parseDateStrict(fromStr);
             LocalDateTime to = parseDateStrict(toStr);
             return Parsed.add(new Event(desc, from, to));
         }
 
-        throw new JohnException("Unknown command.");
+        default:
+            return Parsed.unknown();
+        }
     }
 
     /**
@@ -153,7 +166,7 @@ public final class Parser {
         /**
          * Enumeration for fixed items to look out for while parsing
          */
-        public enum Kind { EXIT, LIST, ADD, MARK, UNMARK, DELETE, FIND }
+        public enum Kind { EXIT, LIST, ADD, MARK, UNMARK, DELETE, FIND, HELP, UNKNOWN }
         public final Kind kind;
         public final Task task; // for ADD
         public final int index; // for mark/unmark/delete
@@ -182,6 +195,22 @@ public final class Parser {
             this.task = null;
             this.index = -1;
             this.query = q;
+        }
+
+        /**
+         * Function to create a parsed object representing and invalid command.
+         * @return Parsed
+         */
+        public static Parsed unknown() {
+            return new Parsed(Kind.UNKNOWN, null);
+        }
+
+        /**
+         * Function to create a parsed object representing providing a list of available commands.
+         * @return Parsed
+         */
+        public static Parsed help() {
+            return new Parsed(Kind.HELP, null);
         }
 
         /** Function to create a parsed object representing program exit. */
