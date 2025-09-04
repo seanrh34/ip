@@ -25,50 +25,46 @@ public class Task {
         return (isDone ? "X" : " "); // mark done task with X
     }
 
-   public String getDesc() {
+    public String getDesc() {
         return this.description;
-   }
+    }
 
-   public boolean getIsDone() {
+    public boolean getIsDone() {
         return this.isDone;
-   }
-
-   public void setDesc(String newDesc) {
-        this.description = newDesc;
-   }
+    }
 
     /**
      * Function to mark a task as done
      */
-   public void mark() {
+    public void mark() {
         this.isDone = true;
-   }
+    }
 
     /**
      * Function to mark a task as NOT done
      */
-   public void unmark() {
+    public void unmark() {
         this.isDone = false;
-   }
+    }
 
     /**
      * Function to return a string representation of the task in a format compatible with the .txt storage
      * @return
      */
-   public String toFileFormatString() {
-       String doneStr = "";
+    public String toFileFormatString() {
+        String doneStr = "";
 
-       if (this.isDone) {
-           doneStr = "Done";
-       } else {
-           doneStr = "Not Done";
-       }
+        if (this.isDone) {
+            doneStr = "Done";
+        } else {
+            doneStr = "Not Done";
+        }
 
-       return doneStr + " | " + description;
-   }
+        return doneStr + " | " + description;
+    }
 
-   @Override
-    public String toString(){
+    @Override
+    public String toString() {
         return "[" + this.getStatusIcon() + "] " + this.description;
-   }
+    }
 }

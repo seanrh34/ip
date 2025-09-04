@@ -100,4 +100,27 @@ public class TaskList {
     public List<Task> asList() {
         return new ArrayList<>(tasks);
     }
+
+    /**
+     * Function to return a user-friendly string of all tasks in the list,
+     * each prefixed with its 1-based index.
+     * Example:
+     *   1. [T][ ] read book
+     *   2. [D][X] return book (by: Aug 6 2023)
+     *
+     * @return formatted string of tasks for display
+     */
+    public String toDisplayString() {
+        if (tasks.isEmpty()) {
+            return "No tasks in your list.";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < tasks.size(); i++) {
+            sb.append(i + 1).append(". ").append(tasks.get(i));
+            if (i < tasks.size() - 1) {
+                sb.append("\n");
+            }
+        }
+        return sb.toString();
+    }
 }
