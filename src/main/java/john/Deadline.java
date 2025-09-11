@@ -2,13 +2,14 @@ package john;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+
 /**
  * Deadlines are tasks which have the special attribute, a string "by" which indicates the date at which this task
  * has to be completed by
  */
-public class Deadline extends Task{
-    private final LocalDateTime by;
+public class Deadline extends Task {
     private static final DateTimeFormatter DISPLAY = DateTimeFormatter.ofPattern("MMM dd yyyy");
+    private final LocalDateTime by;
 
     /**
      * This method creates an instance of a Deadline which uses the engine of Task but also assigns the string "by"
@@ -16,6 +17,7 @@ public class Deadline extends Task{
      */
     public Deadline(String description, LocalDateTime by) {
         super(description);
+        assert by != null : "by cannot be null and must be a valid LocalDateTime";
         this.by = by;
     }
 
