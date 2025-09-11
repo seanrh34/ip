@@ -10,6 +10,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Class to help JohnChatBot manage its task history by storing them in the hard disk
@@ -34,15 +36,24 @@ public class Storage {
      */
     private static String stripLabeled(String s, String label) {
         String trimmed = s.trim();
-        // Accept "Label:" or "Label" (case-insensitive)
         if (trimmed.regionMatches(true, 0, label, 0, label.length())) {
-            String rest = trimmed.substring(label.length()).trim();
-            if (rest.startsWith(":")) {
-                rest = rest.substring(1).trim();
-            }
-            return rest;
+            return trimColon(trimmed, label);
         }
         return trimmed;
+    }
+
+    /**
+     * Helper for the stripLabelled function above
+     * @param trimmed a string
+     * @param label a string
+     * @return a string that is trimmed if it starts with ':'
+     */
+    private static String trimColon(String trimmed, String label) {
+        String rest = trimmed.substring(label.length()).trim();
+        if (rest.startsWith(":")) {
+            rest = rest.substring(1).trim();
+        }
+        return rest;
     }
 
     /**
@@ -67,89 +78,119 @@ public class Storage {
         List<Task> tasks = new ArrayList<>();
 
         for (String raw : lines) {
-            String line = raw.trim();
-            if (line.isEmpty()) {
-                continue;
-            }
-
-            String[] parts = line.split("\\s*\\|\\s*");
-            if (parts.length < 3) {
-                continue;
-            }
-
-            String type = parts[0];
-            String status = parts[1];
-            String desc = parts[2];
-            boolean isDone = "Done".equalsIgnoreCase(status);
-
-            try {
-                switch (type) {
-                case "T": {
-                    Task t = new ToDo(desc);
-                    if (isDone) {
-                        t.mark();
-                    }
-                    tasks.add(t);
-                    break;
-                }
-                case "D": {
-                    if (parts.length < 4) {
-                        break;
-                    }
-                    String byStr = stripLabeled(parts[3], "By");
-
-                    LocalDateTime by;
-                    try {
-                        by = LocalDateTime.parse(byStr, DMY_HM);
-                    } catch (DateTimeParseException e1) {
-                        // Invalid date/time format parsed
-                        break;
-                    }
-
-                    Task t = new Deadline(desc, by);
-                    if (isDone) {
-                        t.mark();
-                    }
-                    tasks.add(t);
-                    break;
-                }
-                case "E": {
-                    if (parts.length < 5) {
-                        break;
-                    }
-                    String fromStr = stripLabeled(parts[3], "From");
-                    String toStr = stripLabeled(parts[4], "To");
-
-                    LocalDateTime from;
-                    LocalDateTime to;
-
-                    try {
-                        from = LocalDateTime.parse(fromStr, DMY_HM);
-                        to = LocalDateTime.parse(toStr, DMY_HM);
-                    } catch (DateTimeParseException e1) {
-                        // Invalid date/time format parsed
-                        break;
-                    }
-
-                    Task t = new Event(desc, from, to);
-                    if (isDone) {
-                        t.mark();
-                    }
-                    tasks.add(t);
-                    break;
-                }
-                default:
-                    // Unknown type tag; skip
-                    break;
-                }
-            } catch (Exception ex) {
-                System.out.println("Error parsing file!");
-            }
+            parseTaskLine(raw).ifPresent(tasks::add);
         }
 
         return tasks;
     }
 
+    /**
+     * method to parse lines of Tasks (in String format) to conver to Task objects
+     * @param raw lines in string, representing a Task
+     * @return the Task Object obtained from converting the string
+     */
+    private static Optional<Task> parseTaskLine(String raw) {
+        if (raw == null) {
+            return Optional.empty();
+        }
+        String line = raw.strip();
+        if (line.isEmpty()) {
+            return Optional.empty();
+        }
+
+        String[] parts = line.split("\\s*\\|\\s*");
+        if (parts.length < 3) {
+            return Optional.empty();
+        }
+
+        String type = parts[0].strip();
+        String status = parts[1].strip();
+        String desc = parts[2].strip();
+
+        boolean isDone = "Done".equalsIgnoreCase(status);
+
+        Optional<Task> task = switch (type) {
+        case "T" -> decodeTodo(desc);
+        case "D" -> decodeDeadline(desc, parts);
+        case "E" -> decodeEvent(desc, parts);
+        default -> Optional.empty(); // unknown tag
+        };
+
+        task.ifPresent(t -> applyDoneFlag(t, isDone));
+        return task;
+    }
+    /**
+     * Function to decode a Todo in string representation (lines)
+     * @param desc string for description of Todo
+     * @return array of a string representation of Todo, separated
+     */
+    private static Optional<Task> decodeTodo(String desc) {
+        if (desc.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(new ToDo(desc));
+    }
+    /**
+     * Function to decode a Deadline in string representation (lines)
+     * @param desc string for description of Deadline
+     * @param parts array of a string representation of Deadline, separated
+     * @return
+     */
+    private static Optional<Task> decodeDeadline(String desc, String[] parts) {
+        if (parts.length < 4 || desc.isEmpty()) {
+            return Optional.empty();
+        }
+        String byStr = stripLabeled(parts[3], "By").strip();
+        Optional<LocalDateTime> by = parseDate(byStr);
+        if (by.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(new Deadline(desc, by.get()));
+    }
+
+    /**
+     * Function to decode an Event in string representation (lines)
+     * @param desc string for description of Event
+     * @param parts array of a string representation of Events, separated
+     * @return Task version of the Event
+     */
+    private static Optional<Task> decodeEvent(String desc, String[] parts) {
+        if (parts.length < 5 || desc.isEmpty()) {
+            return Optional.empty();
+        }
+        String fromStr = stripLabeled(parts[3], "From").strip();
+        String toStr = stripLabeled(parts[4], "To").strip();
+
+        Optional<LocalDateTime> from = parseDate(fromStr);
+        Optional<LocalDateTime> to = parseDate(toStr);
+        if (from.isEmpty() || to.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(new Event(desc, from.get(), to.get()));
+    }
+    /**
+     * Converts a date from a string to LocalDateTime
+     * @param s string representation of a date
+     * @return LocalDateTime version
+     */
+    private static Optional<LocalDateTime> parseDate(String s) {
+        try {
+            return Optional.of(LocalDateTime.parse(s, DMY_HM));
+        } catch (DateTimeParseException e) {
+            return Optional.empty();
+        }
+    }
+    /**
+     * mark a Task as done
+     * @param t
+     * @param isDone
+     */
+    private static void applyDoneFlag(Task t, boolean isDone) {
+        if (isDone) {
+            t.mark();
+        }
+    }
     /**
      * Function to save the current list of tasks in to the .txt file
      * To be called from JohnChatBot.java after any mutation in the tasks
@@ -158,51 +199,59 @@ public class Storage {
      * @throws IOException if writing fails
      */
     public void save(List<Task> tasks) throws IOException {
-        List<String> out = new ArrayList<>(tasks.size());
+        Objects.requireNonNull(tasks, "tasks must not be null");
 
-        for (Task t : tasks) {
-            String status = t.getIsDone() ? "Done" : "Not Done";
+        List<String> out = tasks.stream()
+                .map(Storage::encodeTaskLine)
+                .toList();
 
-            if (t instanceof ToDo) {
-                out.add(String.join(" | ",
-                        "T",
-                        status,
-                        t.getDesc()
-                ));
-            } else if (t instanceof Deadline d) {
-                LocalDateTime by = d.getBy(); // assumes getter exists
-                String byStr = by.format(DMY_HM);
+        ensureParentDir();
+        writeLines(out);
+    }
+    /**
+     * Method to encode a task by converting it to string to be written onto a file
+     * @param t a Task to be converted
+     * @return A string to be written into the file
+     */
+    private static String encodeTaskLine(Task t) {
+        Objects.requireNonNull(t, "task must not be null");
+        String status = t.getIsDone() ? "Done" : "Not Done";
 
-                out.add(String.join(" | ",
-                        "D",
-                        status,
-                        d.getDesc(),
-                        "By: " + byStr
-                ));
-            } else if (t instanceof Event e) {
-                LocalDateTime from = e.getFrom(); // assumes getters exist
-                LocalDateTime to = e.getTo();
-
-                String fromStr = from.format(DMY_HM);
-                String toStr = to.format(DMY_HM);
-
-                out.add(String.join(" | ",
-                        "E",
-                        status,
-                        e.getDesc(),
-                        "From: " + fromStr,
-                        "To: " + toStr
-                ));
-            } else {
-                // Fallback: write as ToDo-style line with whatever description exists
-                out.add(String.join(" | ", "T", status, t.getDesc()));
-            }
+        if (t instanceof Deadline d) {
+            return String.join(" | ",
+                    "D",
+                    status,
+                    d.getDesc(),
+                    "By: " + d.getBy().format(DMY_HM)
+            );
         }
-
-        if (file.getParent() != null) {
-            Files.createDirectories(file.getParent());
+        if (t instanceof Event e) {
+            return String.join(" | ",
+                    "E",
+                    status,
+                    e.getDesc(),
+                    "From: " + e.getFrom().format(DMY_HM),
+                    "To: " + e.getTo().format(DMY_HM)
+            );
         }
-
+        return String.join(" | ", "T", status, t.getDesc());
+    }
+    /**
+     * method to check if the directory exists, creates one otherwise
+     * @throws IOException if input is invalid
+     */
+    private void ensureParentDir() throws IOException {
+        Path parent = file.getParent();
+        if (parent != null) {
+            Files.createDirectories(parent);
+        }
+    }
+    /**
+     * Method for file writing to write new lines on the file
+     * @param out a list of strings to write
+     * @throws IOException if there is invalid input
+     */
+    private void writeLines(List<String> out) throws IOException {
         Files.write(
                 file,
                 out,
@@ -212,4 +261,5 @@ public class Storage {
                 StandardOpenOption.WRITE
         );
     }
+
 }
