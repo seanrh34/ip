@@ -26,6 +26,7 @@ public class Storage {
      * @param file path to the storage file
      */
     public Storage(Path file) {
+        assert file != null : "Storage file path must not be null";
         this.file = file;
     }
 
@@ -140,9 +141,11 @@ public class Storage {
      * @throws IOException if writing fails
      */
     public void save(List<Task> tasks) throws IOException {
+        assert tasks != null : "Tasks to be saved must not be null";
         List<String> out = new ArrayList<>(tasks.size());
 
         for (Task t : tasks) {
+            assert t != null : "Cannot save a null task";
             String status = t.getIsDone() ? "Done" : "Not Done";
 
             if (t instanceof ToDo) {
