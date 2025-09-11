@@ -43,21 +43,44 @@ public class MainWindow extends AnchorPane {
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
     }
     /**
-     * Overlay to provide shutdown so that shutdown is not too abrupt after typing in "bye"
+     * Overlay to provide shutdown so that shutdown is not too abrupt after typing in "bye".
+     * Ensures an overlay exists and is visible; builds and attaches it on first use.
      */
     private void showShutdownOverlay() {
         if (shutdownOverlay != null) {
-            shutdownOverlay.setVisible(true);
-            shutdownOverlay.setManaged(true);
+            showOverlay(shutdownOverlay);
             return;
         }
-        // Full-size glass pane
+        StackPane glass = buildShutdownOverlay();
+        attachOverlayToRoot(glass);
+        shutdownOverlay = glass;
+        showOverlay(shutdownOverlay);
+    }
+
+    /**
+     * Builds the full-screen glass overlay containing a centered shutdown card.
+     *
+     * @return a {@link StackPane} that acts as the glass overlay.
+     */
+    private StackPane buildShutdownOverlay() {
         StackPane glass = new StackPane();
         glass.setStyle("-fx-background-color: rgba(0,0,0,0.35);");
         glass.setPickOnBounds(true);
         glass.setPrefSize(Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);
 
-        // Card with spinner + label
+        VBox card = buildShutdownCard();
+        StackPane.setAlignment(card, Pos.CENTER);
+        glass.getChildren().add(card);
+
+        return glass;
+    }
+
+    /**
+     * Builds the shutdown card containing a spinner and a status label.
+     *
+     * @return a {@link VBox} node representing the shutdown card.
+     */
+    private VBox buildShutdownCard() {
         ProgressIndicator spinner = new ProgressIndicator();
         spinner.setPrefSize(48, 48);
 
@@ -70,25 +93,54 @@ public class MainWindow extends AnchorPane {
         VBox card = new VBox(row);
         card.setAlignment(Pos.CENTER);
         card.setPadding(new Insets(24));
-        card.setStyle("-fx-background-color: -fx-base; -fx-background-radius: 12;"
-                + " -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.25), 12, 0, 0, 4);");
-
-        StackPane.setAlignment(card, Pos.CENTER);
-        glass.getChildren().add(card);
-
-        // Add overlay to the scene root and stretch to full size
-        Pane root = (Pane) scrollPane.getScene().getRoot();
-        if (root instanceof AnchorPane) {
-            AnchorPane.setTopAnchor(glass, 0.0);
-            AnchorPane.setRightAnchor(glass, 0.0);
-            AnchorPane.setBottomAnchor(glass, 0.0);
-            AnchorPane.setLeftAnchor(glass, 0.0);
-        }
-        root.getChildren().add(glass);
-
-        shutdownOverlay = glass;
+        card.setStyle(
+                "-fx-background-color: -fx-base; -fx-background-radius: 12;"
+                        + " -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.25), 12, 0, 0, 4);"
+        );
+        return card;
     }
 
+    /**
+     * Attaches the given overlay to the scene root and stretches it to full size.
+     *
+     * @param overlay the overlay to attach; must not be {@code null}.
+     */
+    private void attachOverlayToRoot(StackPane overlay) {
+        if (overlay == null) {
+            return;
+        }
+        if (scrollPane.getScene() == null || scrollPane.getScene().getRoot() == null) {
+            // Scene not ready; nothing to attach to.
+            return;
+        }
+        Pane root = (Pane) scrollPane.getScene().getRoot();
+
+        if (root instanceof AnchorPane) {
+            AnchorPane.setTopAnchor(overlay, 0.0);
+            AnchorPane.setRightAnchor(overlay, 0.0);
+            AnchorPane.setBottomAnchor(overlay, 0.0);
+            AnchorPane.setLeftAnchor(overlay, 0.0);
+        }
+        root.getChildren().add(overlay);
+    }
+
+    /**
+     * Makes the given overlay visible and managed so it participates in layout.
+     *
+     * @param overlay the overlay node.
+     */
+    private void showOverlay(Node overlay) {
+        if (overlay == null) {
+            return;
+        }
+        overlay.setVisible(true);
+        if (overlay instanceof Region r) {
+            r.setManaged(true);
+        } else if (overlay.getParent() instanceof Region pr) {
+            // Fallback: ensure parent layouts include the overlay.
+            pr.setManaged(true);
+        }
+    }
 
     public void setJohn(John j) {
         this.john = j;
@@ -96,33 +148,110 @@ public class MainWindow extends AnchorPane {
                 + "What can John \uD83D\uDDFF do for you?"));
     }
 
+    /**
+     * Handles user input from the text field (Send button / Enter key).
+     * Validates input, delegates to John for a response, updates the dialog UI,
+     * and initiates graceful shutdown when the exit command is detected.
+     */
     @FXML
     private void handleUserInput() {
         String input = userInput.getText();
-        if (input == null || input.isBlank()) {
+        String trimmed = normalizeInput(input);
+        if (trimmed.isEmpty()) {
             return;
         }
+
         String response = john.getResponse(input);
-        dialogContainer.getChildren().addAll(
-                DialogBox.ofUser(input),
-                DialogBox.ofJohn(response)
-        );
-        userInput.clear();
+        appendConversation(input, response);
+        clearUserInput();
 
-        String trimmed = input == null ? "" : input.strip();
-        if (trimmed.equalsIgnoreCase("bye")) {
-            userInput.setDisable(true);
-            sendButton.setDisable(true);
-
-            showShutdownOverlay();
-
-            PauseTransition delay = new PauseTransition(Duration.seconds(1));
-            delay.setOnFinished(ev -> {
-                Stage stage = (Stage) sendButton.getScene().getWindow();
-                stage.close();
-            });
-            delay.play();
+        if (isExitCommand(trimmed)) {
+            beginGracefulShutdown();
         }
+    }
 
+    /**
+     * Normalizes raw input by converting {@code null} to empty and stripping whitespace.
+     *
+     * @param s raw input which may be {@code null}.
+     * @return a non-null, trimmed string (possibly empty).
+     */
+    private String normalizeInput(String s) {
+        return (s == null) ? "" : s.strip();
+    }
+
+    /**
+     * Appends the user message and JohnChatBot response to the dialog container.
+     *
+     * @param userMessage   the original user input.
+     * @param johnResponse  the response returned by JohnChatBot.
+     */
+    private void appendConversation(String userMessage, String johnResponse) {
+        dialogContainer.getChildren().addAll(
+                DialogBox.ofUser(userMessage),
+                DialogBox.ofJohn(johnResponse)
+        );
+    }
+
+    /**
+     * Clears the user input field.
+     */
+    private void clearUserInput() {
+        userInput.clear();
+    }
+
+    /**
+     * Determines whether the given (trimmed) input is the exit command.
+     *
+     * @param s normalized (trimmed) input string.
+     * @return {@code true} if the input equals "bye" (case-insensitive); otherwise {@code false}.
+     */
+    private boolean isExitCommand(String s) {
+        return "bye".equalsIgnoreCase(s);
+    }
+
+    /**
+     * Begins a graceful shutdown sequence:
+     * disables inputs, shows the shutdown overlay, and closes the window after a short delay.
+     */
+    private void beginGracefulShutdown() {
+        disableInputControls();
+        showShutdownOverlay();
+        scheduleCloseAfter(Duration.seconds(1));
+    }
+
+    /**
+     * Disables the input field and send button to prevent further interaction.
+     */
+    private void disableInputControls() {
+        userInput.setDisable(true);
+        sendButton.setDisable(true);
+    }
+
+    /**
+     * Schedules closing of the application window after the specified duration.
+     *
+     * @param delay the delay before closing the window.
+     */
+    private void scheduleCloseAfter(Duration delay) {
+        PauseTransition pt = new PauseTransition(delay);
+        pt.setOnFinished(ev -> {
+            Stage stage = getStage();
+            if (stage != null) {
+                stage.close();
+            }
+        });
+        pt.play();
+    }
+
+    /**
+     * Obtains the current stage from the send button's scene.
+     *
+     * @return the {@link Stage} associated with this window, or {@code null} if unavailable.
+     */
+    private Stage getStage() {
+        return (sendButton != null && sendButton.getScene() != null)
+                ? (Stage) sendButton.getScene().getWindow()
+                : null;
     }
 }
