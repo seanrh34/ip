@@ -37,110 +37,131 @@ public final class Parser {
      */
     public static Parsed parse(String input) throws JohnException {
         String s = input.trim();
-        String lower = s.toLowerCase();
         String[] split = s.split("\\s+", 2); // command + args
         String cmd = split[0];
 
-        switch (cmd) {
-        case "bye":
-            return Parsed.exit();
+        return switch (cmd) {
+        case "bye" -> Parsed.exit();
+        case "list" -> Parsed.list();
+        case "help" -> Parsed.help();
+        case "find" -> parseFind(s);
+        case "mark", "unmark", "delete" -> parseModify(s, cmd);
+        case "todo" -> parseTodo(s);
+        case "deadline" -> parseDeadline(s);
+        case "event" -> parseEvent(s);
+        default -> Parsed.unknown();
+        };
+    }
 
-        case "list":
-            return Parsed.list();
-
-        case "help":
-            return Parsed.help();
-
-        case "find": {
-            Matcher m = FIND_PATTERN.matcher(s);
-            if (!m.matches()) {
-                throw new JohnException("Invalid format for find. Usage: find <keyword>");
-            }
-            String keyword = m.group(1).trim();
-            if (keyword.isEmpty()) {
-                throw new JohnException("The keyword for find cannot be empty.");
-            }
-            return Parsed.find(keyword);
+    /**
+     * Function to handle the "find" keyword in the above switch case bracket
+     * @param s a string
+     * @return Parsed object
+     * @throws JohnException if the format is invalid
+     */
+    private static Parsed parseFind(String s) throws JohnException {
+        Matcher m = FIND_PATTERN.matcher(s);
+        if (!m.matches()) {
+            throw new JohnException("Invalid format for find. Usage: find <keyword>");
         }
-
-        case "mark":
-        case "unmark":
-        case "delete": {
-            String[] parts = s.split("\\s+");
-            if (parts.length != 2) {
-                throw new JohnException("Invalid input! Please provide a single task number.");
-            }
-            int idx1;
-            try {
-                idx1 = Integer.parseInt(parts[1]);
-            } catch (NumberFormatException e) {
-                throw new JohnException("Invalid index! Task number must be a whole number.");
-            }
-            int idx = idx1 - 1;
-            if (idx < 0) {
-                throw new JohnException("Invalid index! Use a positive number.");
-            }
-            switch (cmd) {
-            case "mark":
-                return Parsed.mark(idx);
-            case "unmark":
-                return Parsed.unmark(idx);
-            default:
-                return Parsed.delete(idx);
-            }
+        String keyword = m.group(1).trim();
+        if (keyword.isEmpty()) {
+            throw new JohnException("The keyword for find cannot be empty.");
         }
-
-        case "todo": {
-            Matcher m = TODO_PATTERN.matcher(s);
-            if (!m.matches()) {
-                throw new JohnException("Invalid format for todo. Usage: todo <task_name>");
-            }
-            String desc = m.group(1).trim();
-            if (desc.isEmpty()) {
-                throw new JohnException("The description of a todo cannot be empty.");
-            }
-            return Parsed.add(new ToDo(desc));
+        return Parsed.find(keyword);
+    }
+    /**
+     * Function to handle "mark", "unmark", and "delete" keywords
+     * @param s String s
+     * @param cmd String
+     * @return Parsed object
+     * @throws JohnException if format is invalid or index is invalid
+     */
+    private static Parsed parseModify(String s, String cmd) throws JohnException {
+        String[] parts = s.split("\\s+");
+        if (parts.length != 2) {
+            throw new JohnException("Invalid input! Please provide a single task number.");
         }
-
-        case "deadline": {
-            Matcher m = DEADLINE_PATTERN.matcher(s);
-            if (!m.matches()) {
-                throw new JohnException(
-                        "Invalid format for deadline. Usage: deadline <desc> /by <DD/MM/YYYY HHMM>");
-            }
-            String desc = m.group(1).trim();
-            String byStr = m.group(2).trim();
-            if (desc.isEmpty() || byStr.isEmpty()) {
-                throw new JohnException(
-                        "A deadline requires <desc> and /by <date time>. "
-                                + "Example: deadline return book /by 28/8/2025 1800");
-            }
-            LocalDateTime by = parseDateStrict(byStr);
-            return Parsed.add(new Deadline(desc, by));
+        int idx1;
+        try {
+            idx1 = Integer.parseInt(parts[1]);
+        } catch (NumberFormatException e) {
+            throw new JohnException("Invalid index! Task number must be a whole number.");
         }
-
-        case "event": {
-            Matcher m = EVENT_PATTERN.matcher(s);
-            if (!m.matches()) {
-                throw new JohnException(
-                        "Invalid format for event. Usage: event <task_name> /from <start> /to <end> (DD/MM/YYYY HHMM)");
-            }
-            String desc = m.group(1).trim();
-            String fromStr = m.group(2).trim();
-            String toStr = m.group(3).trim();
-            if (desc.isEmpty() || fromStr.isEmpty() || toStr.isEmpty()) {
-                throw new JohnException(
-                        "An event requires a description, /from time, and /to time. "
-                                + "Example: event meeting /from 28/8/2025 1800 /to 28/8/2025 2000");
-            }
-            LocalDateTime from = parseDateStrict(fromStr);
-            LocalDateTime to = parseDateStrict(toStr);
-            return Parsed.add(new Event(desc, from, to));
+        int idx = idx1 - 1;
+        if (idx < 0) {
+            throw new JohnException("Invalid index! Use a positive number.");
         }
+        return switch (cmd) {
+        case "mark" -> Parsed.mark(idx);
+        case "unmark" -> Parsed.unmark(idx);
+        default -> Parsed.delete(idx);
+        };
+    }
 
-        default:
-            return Parsed.unknown();
+    /**
+     * Function to handle "todo" keyword
+     * @param s a string
+     * @throws JohnException for invalid formats
+     */
+    private static Parsed parseTodo(String s) throws JohnException {
+        Matcher m = TODO_PATTERN.matcher(s);
+        if (!m.matches()) {
+            throw new JohnException("Invalid format for todo. Usage: todo <task_name>");
         }
+        String desc = m.group(1).trim();
+        if (desc.isEmpty()) {
+            throw new JohnException("The description of a todo cannot be empty.");
+        }
+        return Parsed.add(new ToDo(desc));
+    }
+
+    /**
+     * Function to handle "deadline" keyword
+     * @param s a string
+     * @return Parsed object
+     * @throws JohnException if the format of s is wrong
+     */
+    private static Parsed parseDeadline(String s) throws JohnException {
+        Matcher m = DEADLINE_PATTERN.matcher(s);
+        if (!m.matches()) {
+            throw new JohnException(
+                    "Invalid format for deadline. Usage: deadline <desc> /by <DD/MM/YYYY HHMM>");
+        }
+        String desc = m.group(1).trim();
+        String byStr = m.group(2).trim();
+        if (desc.isEmpty() || byStr.isEmpty()) {
+            throw new JohnException(
+                    "A deadline requires <desc> and /by <date time>. "
+                            + "Example: deadline return book /by 28/8/2025 1800");
+        }
+        LocalDateTime by = parseDateStrict(byStr);
+        return Parsed.add(new Deadline(desc, by));
+    }
+
+    /**
+     * Function to handle "event" keyword
+     * @param s a string
+     * @return Parsed object
+     * @throws JohnException if the format of s is invalid
+     */
+    private static Parsed parseEvent(String s) throws JohnException {
+        Matcher m = EVENT_PATTERN.matcher(s);
+        if (!m.matches()) {
+            throw new JohnException(
+                    "Invalid format for event. Usage: event <task_name> /from <start> /to <end> (DD/MM/YYYY HHMM)");
+        }
+        String desc = m.group(1).trim();
+        String fromStr = m.group(2).trim();
+        String toStr = m.group(3).trim();
+        if (desc.isEmpty() || fromStr.isEmpty() || toStr.isEmpty()) {
+            throw new JohnException(
+                    "An event requires a description, /from time, and /to time. "
+                            + "Example: event meeting /from 28/8/2025 1800 /to 28/8/2025 2000");
+        }
+        LocalDateTime from = parseDateStrict(fromStr);
+        LocalDateTime to = parseDateStrict(toStr);
+        return Parsed.add(new Event(desc, from, to));
     }
 
     /**
