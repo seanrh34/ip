@@ -1,6 +1,7 @@
 package john;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,6 +20,7 @@ public class TaskList {
 
     /**
      * Function to construct a task list from an existing list of tasks.
+     *
      * @param tasks the initial list of tasks to load into the task list
      */
     public TaskList(List<Task> tasks) {
@@ -28,6 +30,7 @@ public class TaskList {
 
     /**
      * Function to return the current number of tasks in the list.
+     *
      * @return number of tasks
      */
     public int size() {
@@ -36,6 +39,7 @@ public class TaskList {
 
     /**
      * Function to get a task by index (0-based).
+     *
      * @param index zero-based index of the task
      * @return the task at the index
      */
@@ -45,6 +49,7 @@ public class TaskList {
 
     /**
      * Function to add a task to the list.
+     *
      * @param t the task to add
      */
     public void add(Task t) {
@@ -53,6 +58,7 @@ public class TaskList {
 
     /**
      * Function to remove and return a task by index (0-based).
+     *
      * @param index zero-based index to remove
      * @return the removed task
      */
@@ -62,6 +68,7 @@ public class TaskList {
 
     /**
      * Function to mark a task as done by index (0-based).
+     *
      * @param index zero-based index to mark
      * @return the marked task
      */
@@ -73,6 +80,7 @@ public class TaskList {
 
     /**
      * Function to unmark a task as not done by index (0-based).
+     *
      * @param index zero-based index to unmark
      * @return the unmarked task
      */
@@ -84,6 +92,7 @@ public class TaskList {
 
     /**
      * Function to find tasks whose descriptions contain the given keyword (case-insensitive).
+     *
      * @param keyword the keyword to look for
      * @return a new list containing matching tasks in their current order
      */
@@ -96,7 +105,56 @@ public class TaskList {
     }
 
     /**
+     * Returns a non-mutating view in which all Deadlines appear first in ascending "by" order,
+     * followed by all other tasks in their original order.
+     *
+     * @return a new list view of tasks.
+     */
+    public List<Task> sortedViewDeadlineFirst() {
+        List<Task> deadlines = tasks.stream()
+                .filter(t -> t instanceof Deadline)
+                .map(t -> (Deadline) t)
+                .sorted(Comparator.comparing(Deadline::getBy))
+                .map(t -> (Task) t)
+                .collect(Collectors.toList());
+
+        List<Task> others = tasks.stream()
+                .filter(t -> !(t instanceof Deadline))
+                .collect(Collectors.toList());
+
+        List<Task> out = new ArrayList<>(tasks.size());
+        out.addAll(deadlines);
+        out.addAll(others);
+        return out;
+    }
+
+    /**
+     * Returns a non-mutating view in which all Events appear first in ascending "from" order,
+     * followed by all other tasks in their original order.
+     *
+     * @return a new list view of tasks.
+     */
+    public List<Task> sortedViewEventFirst() {
+        List<Task> events = tasks.stream()
+                .filter(t -> t instanceof Event)
+                .map(t -> (Event) t)
+                .sorted(Comparator.comparing(Event::getFrom))
+                .map(t -> (Task) t)
+                .collect(Collectors.toList());
+
+        List<Task> others = tasks.stream()
+                .filter(t -> !(t instanceof Event))
+                .collect(Collectors.toList());
+
+        List<Task> out = new ArrayList<>(tasks.size());
+        out.addAll(events);
+        out.addAll(others);
+        return out;
+    }
+
+    /**
      * Function to return a copy of the internal list for persistence.
+     *
      * @return a new list containing all current tasks
      */
     public List<Task> asList() {
@@ -104,11 +162,31 @@ public class TaskList {
     }
 
     /**
+     * Renders an arbitrary task list view using the same format as {@link #toDisplayString()}.
+     *
+     * @param view tasks to render in order
+     * @return formatted string
+     */
+    public String toDisplayString(List<Task> view) {
+        if (view == null || view.isEmpty()) {
+            return "No tasks in your list.";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < view.size(); i++) {
+            sb.append(i + 1).append(". ").append(view.get(i));
+            if (i < view.size() - 1) {
+                sb.append("\n");
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
      * Function to return a user-friendly string of all tasks in the list,
      * each prefixed with its 1-based index.
      * Example:
-     *   1. [T][ ] read book
-     *   2. [D][X] return book (by: Aug 6 2023)
+     * 1. [T][ ] read book
+     * 2. [D][X] return book (by: Aug 6 2023)
      *
      * @return formatted string of tasks for display
      */
