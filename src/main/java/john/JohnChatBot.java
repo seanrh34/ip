@@ -54,9 +54,10 @@ public class JohnChatBot {
             throw new JohnException("Invalid index! Please enter a number between 1 and " + size);
         }
     }
-
     /**
-     * Function to run the main application
+     * Function to run the main application.
+     * Reads user commands in a loop, parses them, and delegates handling
+     * to command-specific helpers while managing UI output and persistence.
      */
     public void run() {
         ui.showWelcome();
@@ -66,60 +67,144 @@ public class JohnChatBot {
             String fullCommand = ui.readCommand();
             try {
                 Parser.Parsed p = Parser.parse(fullCommand);
-                ui.showLine();
-
-                switch (p.kind) {
-                case EXIT:
-                    ui.showGoodbye();
-                    isExit = true;
-                    break;
-                case LIST:
-                    ui.showList(tasks);
-                    break;
-                case ADD:
-                    tasks.add(p.task);
-                    ui.showAdded(p.task, tasks.size());
-                    storage.save(tasks.asList());
-                    break;
-                case MARK: {
-                    ensureIndexInRange(p.index, tasks.size());
-                    Task t = tasks.mark(p.index);
-                    ui.showMarked(t);
-                    storage.save(tasks.asList());
-                    break;
-                }
-                case UNMARK: {
-                    ensureIndexInRange(p.index, tasks.size());
-                    Task t = tasks.unmark(p.index);
-                    ui.showUnmarked(t);
-                    storage.save(tasks.asList());
-                    break;
-                }
-                case FIND: {
-                    List<Task> matches = tasks.find(p.query);
-                    ui.showFound(matches);
-                    break;
-                }
-                case DELETE: {
-                    ensureIndexInRange(p.index, tasks.size());
-                    Task removed = tasks.remove(p.index);
-                    ui.showDeleted(removed, tasks.size());
-                    storage.save(tasks.asList());
-                    break;
-                }
-                default: {
-                    break;
-                }
-                }
+                isExit = processCommand(p);
             } catch (JohnException e) {
-                ui.showLine();
                 ui.showError(e.getMessage());
             } catch (IOException ioe) {
-                ui.showLine();
                 ui.showError("Warning: Failed to save tasks to disk.");
             } finally {
                 ui.showLine();
             }
         }
     }
+
+    /**
+     * Processes a parsed command by delegating to the appropriate handler.
+     *
+     * @param p The parsed command.
+     * @return {@code true} if the command requests application exit; {@code false} otherwise.
+     * @throws IOException   If persisting tasks fails in a handler that modifies tasks.
+     * @throws JohnException If a command requires a valid index and it is out of range.
+     */
+    private boolean processCommand(Parser.Parsed p) throws IOException, JohnException {
+        return switch (p.kind) {
+        case EXIT -> handleExit();
+        case LIST -> {
+            handleList();
+            yield false;
+        }
+        case ADD -> {
+            handleAdd(p);
+            yield false;
+        }
+        case MARK -> {
+            handleMark(p);
+            yield false;
+        }
+        case UNMARK -> {
+            handleUnmark(p);
+            yield false;
+        }
+        case FIND -> {
+            handleFind(p);
+            yield false;
+        }
+        case DELETE -> {
+            handleDelete(p);
+            yield false;
+        }
+        default -> false;
+        };
+    }
+
+    /**
+     * Handles the EXIT command by showing the goodbye message.
+     *
+     * @return {@code true} to signal that the application should exit.
+     */
+    private boolean handleExit() {
+        ui.showGoodbye();
+        return true;
+    }
+
+    /**
+     * Handles the LIST command by rendering the current tasks.
+     */
+    private void handleList() {
+        ui.showList(tasks);
+    }
+
+    /**
+     * Handles the ADD command by adding a task and persisting the change.
+     *
+     * @param p Parsed command containing the task to add.
+     * @throws IOException If saving the updated tasks fails.
+     */
+    private void handleAdd(Parser.Parsed p) throws IOException {
+        tasks.add(p.task);
+        ui.showAdded(p.task, tasks.size());
+        saveTasks();
+    }
+
+    /**
+     * Handles the MARK command by marking a task done and persisting the change.
+     *
+     * @param p Parsed command containing the zero-based index to mark.
+     * @throws JohnException If the index is out of range.
+     * @throws IOException   If saving the updated tasks fails.
+     */
+    private void handleMark(Parser.Parsed p) throws IOException, JohnException {
+        ensureIndexInRange(p.index, tasks.size());
+        Task t = tasks.mark(p.index);
+        ui.showMarked(t);
+        saveTasks();
+    }
+
+    /**
+     * Handles the UNMARK command by marking a task not done and persisting the change.
+     *
+     * @param p Parsed command containing the zero-based index to unmark.
+     * @throws JohnException If the index is out of range.
+     * @throws IOException   If saving the updated tasks fails.
+     */
+    private void handleUnmark(Parser.Parsed p) throws IOException, JohnException {
+        ensureIndexInRange(p.index, tasks.size());
+        Task t = tasks.unmark(p.index);
+        ui.showUnmarked(t);
+        saveTasks();
+    }
+
+    /**
+     * Handles the FIND command by showing tasks that match the query.
+     *
+     * @param p Parsed command containing the search query.
+     */
+    private void handleFind(Parser.Parsed p) {
+        List<Task> matches = tasks.find(p.query);
+        ui.showFound(matches);
+    }
+
+    /**
+     * Handles the DELETE command by removing a task and persisting the change.
+     *
+     * @param p Parsed command containing the zero-based index to delete.
+     * @throws JohnException If the index is out of range.
+     * @throws IOException   If saving the updated tasks fails.
+     */
+    private void handleDelete(Parser.Parsed p) throws IOException, JohnException {
+        ensureIndexInRange(p.index, tasks.size());
+        Task removed = tasks.remove(p.index);
+        ui.showDeleted(removed, tasks.size());
+        saveTasks();
+    }
+
+    /**
+     * Persists the current task list to storage.
+     *
+     * @throws IOException If writing to storage fails.
+     */
+    private void saveTasks() throws IOException {
+        storage.save(tasks.asList());
+    }
+
 }
