@@ -28,6 +28,7 @@ public class Storage {
      * @param file path to the storage file
      */
     public Storage(Path file) {
+        assert file != null : "Storage file path must not be null";
         this.file = file;
     }
 
@@ -204,6 +205,7 @@ public class Storage {
         List<String> out = tasks.stream()
                 .map(Storage::encodeTaskLine)
                 .toList();
+        assert tasks != null : "Tasks to be saved must not be null";
 
         ensureParentDir();
         writeLines(out);

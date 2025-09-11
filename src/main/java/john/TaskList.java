@@ -22,6 +22,7 @@ public class TaskList {
      * @param tasks the initial list of tasks to load into the task list
      */
     public TaskList(List<Task> tasks) {
+        assert tasks != null : "tasks cannot be null";
         this.tasks = new ArrayList<>(tasks);
     }
 
@@ -87,6 +88,7 @@ public class TaskList {
      * @return a new list containing matching tasks in their current order
      */
     public List<Task> find(String keyword) {
+        assert keyword != null : "keyword cannot be null";
         String needle = keyword.toLowerCase();
         return tasks.stream()
                 .filter(t -> t.getDesc().toLowerCase().contains(needle))

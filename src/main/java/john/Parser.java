@@ -36,6 +36,7 @@ public final class Parser {
      * @throws JohnException if the command is invalid or cannot be parsed
      */
     public static Parsed parse(String input) throws JohnException {
+        assert input != null : "Input cannot be null";
         String s = input.trim();
         String[] split = s.split("\\s+", 2); // command + args
         String cmd = split[0];
