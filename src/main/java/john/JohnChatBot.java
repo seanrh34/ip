@@ -11,9 +11,11 @@ public class JohnChatBot {
     private final Storage storage;
     private final TaskList tasks;
     private final Ui ui;
+
     /**
      * Function to initialize the chatbot with storage and load existing tasks if available.
      * Tasks will be saved into the hard disk under ./data/johnChatBot.txt
+     *
      * @param filePath the path to the storage file as a string
      */
     public JohnChatBot(String filePath) {
@@ -30,12 +32,27 @@ public class JohnChatBot {
         }
         this.tasks = loaded;
     }
+
     /**
      * Function to start the chatbot application.
+     *
      * @param args the string input
      */
     public static void main(String[] args) {
         new JohnChatBot("data/johnChatBot.txt").run();
+    }
+
+    /**
+     * Function to check if an index is from 0 to range.
+     *
+     * @param idx  the index to be checked
+     * @param size the current number of tasks
+     * @throws JohnException if the index is out of range
+     */
+    private static void ensureIndexInRange(int idx, int size) throws JohnException {
+        if (idx < 0 || idx >= size) {
+            throw new JohnException("Invalid index! Please enter a number between 1 and " + size);
+        }
     }
 
     /**
@@ -103,18 +120,6 @@ public class JohnChatBot {
             } finally {
                 ui.showLine();
             }
-        }
-    }
-
-    /**
-     * Function to check if an index is from 0 to range.
-     * @param idx the index to be checked
-     * @param size the current number of tasks
-     * @throws JohnException if the index is out of range
-     */
-    private static void ensureIndexInRange(int idx, int size) throws JohnException {
-        if (idx < 0 || idx >= size) {
-            throw new JohnException("Invalid index! Please enter a number between 1 and " + size);
         }
     }
 }

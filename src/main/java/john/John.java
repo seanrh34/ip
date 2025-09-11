@@ -12,6 +12,7 @@ public class John {
 
     /**
      * John class
+     *
      * @param filePath
      */
     public John(String filePath) {
@@ -23,6 +24,12 @@ public class John {
             loaded = new TaskList(java.util.List.of());
         }
         this.tasks = loaded;
+    }
+
+    private static void ensureIndexInRange(int idx, int size) throws JohnException {
+        if (idx < 0 || idx >= size) {
+            throw new JohnException("Invalid index! Please enter a number between 1 and " + size);
+        }
     }
 
     /**
@@ -108,12 +115,6 @@ public class John {
             return "John \uD83D\uDDFF couldn't save your tasks: " + ioe.getMessage();
         } catch (Exception e) {
             return "Even John \uD83D\uDDFF did not expect this error: " + e.getMessage();
-        }
-    }
-
-    private static void ensureIndexInRange(int idx, int size) throws JohnException {
-        if (idx < 0 || idx >= size) {
-            throw new JohnException("Invalid index! Please enter a number between 1 and " + size);
         }
     }
 }

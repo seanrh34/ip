@@ -16,13 +16,13 @@ import java.util.List;
  * The history will be stored as a txt file in ./data/johnChatBot.txt
  */
 public class Storage {
-    private final Path file;
-
     // Canonical storage format for all date-times: DD/MM/YYYY HHMM (single-digit day/month allowed)
     private static final DateTimeFormatter DMY_HM = DateTimeFormatter.ofPattern("d/M/yyyy HHmm");
+    private final Path file;
 
     /**
      * Function to create a new instance of Storage
+     *
      * @param file path to the storage file
      */
     public Storage(Path file) {
@@ -30,8 +30,25 @@ public class Storage {
     }
 
     /**
+     * Remove labels like "By:", "From:", "To:" (case-insensitive) and return the value text.
+     */
+    private static String stripLabeled(String s, String label) {
+        String trimmed = s.trim();
+        // Accept "Label:" or "Label" (case-insensitive)
+        if (trimmed.regionMatches(true, 0, label, 0, label.length())) {
+            String rest = trimmed.substring(label.length()).trim();
+            if (rest.startsWith(":")) {
+                rest = rest.substring(1).trim();
+            }
+            return rest;
+        }
+        return trimmed;
+    }
+
+    /**
      * Function to load the list of tasks from the .txt file into JohnChatBot,
      * converts the tasks from string to Task
+     *
      * @return list of tasks
      * @throws IOException if the file cannot be read/created
      */
@@ -136,6 +153,7 @@ public class Storage {
     /**
      * Function to save the current list of tasks in to the .txt file
      * To be called from JohnChatBot.java after any mutation in the tasks
+     *
      * @param tasks list of tasks to persist
      * @throws IOException if writing fails
      */
@@ -151,8 +169,7 @@ public class Storage {
                         status,
                         t.getDesc()
                 ));
-            } else if (t instanceof Deadline) {
-                Deadline d = (Deadline) t;
+            } else if (t instanceof Deadline d) {
                 LocalDateTime by = d.getBy(); // assumes getter exists
                 String byStr = by.format(DMY_HM);
 
@@ -162,8 +179,7 @@ public class Storage {
                         d.getDesc(),
                         "By: " + byStr
                 ));
-            } else if (t instanceof Event) {
-                Event e = (Event) t;
+            } else if (t instanceof Event e) {
                 LocalDateTime from = e.getFrom(); // assumes getters exist
                 LocalDateTime to = e.getTo();
 
@@ -195,21 +211,5 @@ public class Storage {
                 StandardOpenOption.TRUNCATE_EXISTING,
                 StandardOpenOption.WRITE
         );
-    }
-
-    /**
-     * Remove labels like "By:", "From:", "To:" (case-insensitive) and return the value text.
-     */
-    private static String stripLabeled(String s, String label) {
-        String trimmed = s.trim();
-        // Accept "Label:" or "Label" (case-insensitive)
-        if (trimmed.regionMatches(true, 0, label, 0, label.length())) {
-            String rest = trimmed.substring(label.length()).trim();
-            if (rest.startsWith(":")) {
-                rest = rest.substring(1).trim();
-            }
-            return rest;
-        }
-        return trimmed;
     }
 }

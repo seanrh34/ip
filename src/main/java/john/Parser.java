@@ -10,29 +10,27 @@ import java.util.regex.Pattern;
  * Class to parse user commands and transform them into structured actions or new tasks.
  */
 public final class Parser {
-    private Parser() {}
-
+    // Formatter: DD/MM/YYYY HHMM (single-digit day/month allowed)
+    public static final DateTimeFormatter DMY_HM = DateTimeFormatter.ofPattern("d/M/yyyy HHmm");
     // Matches "deadline <task_name> /by <time>"
     private static final Pattern DEADLINE_PATTERN =
             Pattern.compile("^deadline\\s+(.+)\\s+/by\\s+(.+)$", Pattern.CASE_INSENSITIVE);
-
-    // Formatter: DD/MM/YYYY HHMM (single-digit day/month allowed)
-    public static final DateTimeFormatter DMY_HM = DateTimeFormatter.ofPattern("d/M/yyyy HHmm");
-
     // Matches "event <desc> /from <start_time> /to <end_time>"
     private static final Pattern EVENT_PATTERN =
             Pattern.compile("^event\\s+(.+)\\s+/from\\s+(.+)\\s+/to\\s+(.+)$", Pattern.CASE_INSENSITIVE);
-
     // Matches "find <keyword>"
     private static final Pattern FIND_PATTERN =
             Pattern.compile("^find\\s+(.+)$", Pattern.CASE_INSENSITIVE);
-
     // Matches "todo <task_name>"
     private static final Pattern TODO_PATTERN =
             Pattern.compile("^todo\\s+(.+)$", Pattern.CASE_INSENSITIVE);
 
+    private Parser() {
+    }
+
     /**
      * Function to parse a raw user command string into a Parsed object representing the action.
+     *
      * @param input the raw user command
      * @return a structured Parsed instance indicating the action to perform
      * @throws JohnException if the command is invalid or cannot be parsed
@@ -147,6 +145,7 @@ public final class Parser {
 
     /**
      * Function to strictly parse a date-time string using DD/MM/YYYY HHMM.
+     *
      * @param s the date-time string
      * @return a LocalDateTime parsed from the string
      * @throws JohnException if the input string is not in the expected format
@@ -163,10 +162,6 @@ public final class Parser {
      * Class to represent the parsed result of a user command.
      */
     public static final class Parsed {
-        /**
-         * Enumeration for fixed items to look out for while parsing
-         */
-        public enum Kind { EXIT, LIST, ADD, MARK, UNMARK, DELETE, FIND, HELP, UNKNOWN }
         public final Kind kind;
         public final Task task; // for ADD
         public final int index; // for mark/unmark/delete
@@ -174,6 +169,7 @@ public final class Parser {
 
         /**
          * Function to construct a parsed object (non-query actions).
+         *
          * @param k the kind of parsed action
          * @param t the task if any (for ADD)
          * @param i the index if any (for mark/unmark/delete)
@@ -187,6 +183,7 @@ public final class Parser {
 
         /**
          * Function to construct a parsed object for query actions such as find.
+         *
          * @param k the kind of parsed action
          * @param q the query string (e.g., keyword for find)
          */
@@ -199,6 +196,7 @@ public final class Parser {
 
         /**
          * Function to create a parsed object representing and invalid command.
+         *
          * @return Parsed
          */
         public static Parsed unknown() {
@@ -207,49 +205,68 @@ public final class Parser {
 
         /**
          * Function to create a parsed object representing providing a list of available commands.
+         *
          * @return Parsed
          */
         public static Parsed help() {
             return new Parsed(Kind.HELP, null);
         }
 
-        /** Function to create a parsed object representing program exit. */
+        /**
+         * Function to create a parsed object representing program exit.
+         */
         public static Parsed exit() {
             return new Parsed(Kind.EXIT, null, -1);
         }
 
-        /** Function to create a parsed object representing list action. */
+        /**
+         * Function to create a parsed object representing list action.
+         */
         public static Parsed list() {
             return new Parsed(Kind.LIST, null, -1);
         }
 
-        /** Function to create a parsed object representing adding a task. */
+        /**
+         * Function to create a parsed object representing adding a task.
+         */
         public static Parsed add(Task t) {
             return new Parsed(Kind.ADD, t, -1);
         }
 
-        /** Function to create a parsed object representing marking a task. */
+        /**
+         * Function to create a parsed object representing marking a task.
+         */
         public static Parsed mark(int idx) {
             return new Parsed(Kind.MARK, null, idx);
         }
 
-        /** Function to create a parsed object representing unmarking a task. */
+        /**
+         * Function to create a parsed object representing unmarking a task.
+         */
         public static Parsed unmark(int idx) {
             return new Parsed(Kind.UNMARK, null, idx);
         }
 
-        /** Function to create a parsed object representing deleting a task. */
+        /**
+         * Function to create a parsed object representing deleting a task.
+         */
         public static Parsed delete(int idx) {
             return new Parsed(Kind.DELETE, null, idx);
         }
 
         /**
          * Function to create a parsed object representing a find action.
+         *
          * @param keyword the keyword to search for in task descriptions
          * @return a Parsed instance for FIND
          */
         public static Parsed find(String keyword) {
             return new Parsed(Kind.FIND, keyword);
         }
+
+        /**
+         * Enumeration for fixed items to look out for while parsing
+         */
+        public enum Kind { EXIT, LIST, ADD, MARK, UNMARK, DELETE, FIND, HELP, UNKNOWN }
     }
 }
