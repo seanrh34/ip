@@ -2,6 +2,7 @@ package john;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 
 /**
  * GUI-facing facade that maintains state and returns textual responses.
@@ -57,6 +58,7 @@ public class John {
             case DELETE -> handleDelete(p);
             case FIND -> handleFind(p);
             case HELP -> helpText();
+            case SORT -> handleSort(p);
             default -> "Unknown command, type in \"help\" for available commands. \uD83D\uDDFF";
             };
         } catch (JohnException je) {
@@ -66,6 +68,22 @@ public class John {
         } catch (Exception e) {
             return "Even John \uD83D\uDDFF did not expect this error: " + e.getMessage();
         }
+    }
+    /**
+     * Function to handle sort command
+     * @param p Parsed object
+     * @return a String for the output
+     */
+    private String handleSort(Parser.Parsed p) {
+        List<Task> view;
+        if ("deadline".equalsIgnoreCase(p.query)) {
+            view = tasks.sortedViewDeadlineFirst();
+        } else if ("event".equalsIgnoreCase(p.query)) {
+            view = tasks.sortedViewEventFirst();
+        } else {
+            return "Unknown sort key. Use \"/sort deadline\" or \"/sort event\".";
+        }
+        return tasks.toDisplayString(view);
     }
 
     /**
@@ -195,7 +213,9 @@ public class John {
                 "  delete <n>                    - Delete task #n",
                 "",
                 "Search",
-                "  find <keyword>                - Find tasks containing the keyword"
+                "  find <keyword>                - Find tasks containing the keyword",
+                "  sort deadline                 - Sort by earliest deadline",
+                "  sort event                    - Sort by earliest event"
         );
     }
 
