@@ -179,3 +179,5 @@ Attributions:
 3. build/images/chat_background.jpg - https://www.reddit.com/r/pcmasterrace/comments/23qpse/in_honor_of_windows_xp_i_made_a_4k_version_of/
 
 AI Usage: Refer to the file AI.md in the root of this repo.
+
+Accurate as of: JohnChatBot v1.0
