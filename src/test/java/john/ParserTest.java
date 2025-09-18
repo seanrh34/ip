@@ -1,16 +1,20 @@
 package john;
 
-import john.command.Parser;
-import john.exceptions.JohnException;
-import john.tasks.Deadline;
-import john.tasks.Event;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDateTime;
-
-import static org.junit.jupiter.api.Assertions.*;
+import john.command.Parser;
+import john.exceptions.JohnException;
+import john.tasks.Deadline;
+import john.tasks.Event;
 
 /**
  * Class to test Parser behavior for valid and invalid commands, including strict date-time parsing.
@@ -26,7 +30,7 @@ public class ParserTest {
     void parse_deadline_valid() throws Exception {
         Parser.Parsed p = Parser.parse("deadline return book /by 28/8/2025 1800");
         assertEquals(Parser.Parsed.Kind.ADD, p.kind, "Expected an ADD action");
-        assertTrue(p.task instanceof Deadline, "Expected a Deadline task");
+        assertInstanceOf(Deadline.class, p.task, "Expected a Deadline task");
 
         Deadline d = (Deadline) p.task;
         LocalDateTime expected = LocalDateTime.of(2025, 8, 28, 18, 0);
@@ -43,7 +47,7 @@ public class ParserTest {
     void parse_event_valid() throws Exception {
         Parser.Parsed p = Parser.parse("event standup /from 28/8/2025 0900 /to 28/8/2025 0930");
         assertEquals(Parser.Parsed.Kind.ADD, p.kind);
-        assertTrue(p.task instanceof Event, "Expected an Event task");
+        assertInstanceOf(Event.class, p.task, "Expected an Event task");
 
         Event e = (Event) p.task;
         assertEquals("standup", e.getDesc());
@@ -58,10 +62,10 @@ public class ParserTest {
     @DisplayName("deadline parse: several invalid date formats throw JohnException")
     void parse_deadline_invalidFormats() {
         String[] bad = new String[] {
-                "deadline x /by 2025-08-28 1800", // ISO format, not allowed
-                "deadline x /by 28/08/2025",     // missing time
-                "deadline x /by 28-8-2025 1800", // wrong separators
-                "deadline x /by 32/8/2025 1800"  // impossible day
+            "deadline x /by 2025-08-28 1800", // ISO format, not allowed
+            "deadline x /by 28/08/2025", // missing time
+            "deadline x /by 28-8-2025 1800", // wrong separators
+            "deadline x /by 32/8/2025 1800" // impossible day
         };
         for (String cmd : bad) {
             JohnException ex = assertThrows(JohnException.class, () -> Parser.parse(cmd), cmd);
@@ -76,10 +80,10 @@ public class ParserTest {
     @Test
     @DisplayName("event parse: missing /to part throws JohnException")
     void parse_event_missingTo() {
-        JohnException ex = assertThrows(JohnException.class,
-                () -> Parser.parse("event meet /from 28/8/2025 0900"));
-        assertTrue(ex.getMessage().toLowerCase().contains("usage") ||
-                        ex.getMessage().toLowerCase().contains("requires"),
+        JohnException ex = assertThrows(JohnException.class, () -> Parser.parse(
+                "event meet /from 28/8/2025 0900"));
+        assertTrue(ex.getMessage().toLowerCase().contains("usage")
+                        || ex.getMessage().toLowerCase().contains("requires"),
                 "Error should include usage/help text");
     }
 }

@@ -1,14 +1,9 @@
 package john;
 
-import john.data.Storage;
-import john.tasks.Deadline;
-import john.tasks.Event;
-import john.tasks.Task;
-import john.tasks.ToDo;
-
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -16,7 +11,15 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import john.data.Storage;
+import john.tasks.Deadline;
+import john.tasks.Event;
+import john.tasks.Task;
+import john.tasks.ToDo;
 
 /**
  * Class to test Storage save/load round-trip with tasks containing date-time fields.
@@ -55,12 +58,12 @@ public class StorageTest {
         assertEquals(3, loaded.size(), "Task count should be preserved");
 
         // 1) ToDo
-        assertTrue(loaded.get(0) instanceof ToDo);
+        assertInstanceOf(ToDo.class, loaded.get(0));
         assertEquals("read book", loaded.get(0).getDesc());
         assertFalse(loaded.get(0).getIsDone());
 
         // 2) Deadline
-        assertTrue(loaded.get(1) instanceof Deadline);
+        assertInstanceOf(Deadline.class, loaded.get(1));
         Deadline loadedDl = (Deadline) loaded.get(1);
         assertEquals("return book", loadedDl.getDesc());
         assertTrue(loadedDl.getIsDone(), "Done status should persist");
@@ -68,7 +71,7 @@ public class StorageTest {
                 "Deadline time should persist");
 
         // 3) Event
-        assertTrue(loaded.get(2) instanceof Event);
+        assertInstanceOf(Event.class, loaded.get(2));
         Event loadedEv = (Event) loaded.get(2);
         assertEquals("project meeting", loadedEv.getDesc());
         assertEquals(LocalDateTime.of(2025, 8, 28, 9, 0), loadedEv.getFrom());
