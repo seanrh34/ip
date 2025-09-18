@@ -1,6 +1,6 @@
 # AI Use Log
 
-Throughout this project, I use Microsoft Copilot (built in to VSCode) with the Claude Sonnet 4 model to help me with
+Throughout this project, I used Microsoft Copilot (built in to VSCode) with the Claude Sonnet 4 model to help me with
 managing code quality and project structure design.
 
 ## 1. 18 September 2025: AI Usage Documentation Setup
@@ -119,7 +119,7 @@ From now on, including this prompt, modify AI.md for each signifcant prompt I gi
 - Verified: Task hierarchy, Storage operations, Parser logic, UI components, Exception handling
 - Result: Codebase demonstrates excellent SLAP adherence with proper method decomposition and abstraction levels
 
-## 5. 18 September 2025: Added JUnit tests for Storage, Parser, Ui, and MainWindow
+## 5. 18 September 2025: Added JUnit tests for Storage, Parser and Ui
 
 ### Prompt: Generate and refine JUnit tests for the chatbot system, ensuring compliance with checkstyle.xml and handling GUI-related issues.
 
@@ -128,7 +128,6 @@ From now on, including this prompt, modify AI.md for each signifcant prompt I gi
 - Added **StorageTest.java** to verify save/load round-trip functionality with ToDo, Deadline, and Event tasks (including LocalDateTime and done status persistence).
 - Added **ParserTest.java** to validate command parsing for deadlines and events, including strict date-time parsing and invalid format handling.
 - Added **UiTest.java** to test `Ui.showWelcome()` and `Ui.showError()`, with adjustments for correct message expectations.
-- Added **MainWindowTest.java** to test FXML loading and `setJohn()` injection for GUI controller, ensuring thread-safety with `Platform.runLater` and `WaitForAsyncUtils`.
 - Resolved Checkstyle errors: enforced explicit imports (no `*`), corrected indentation, spacing, operator wrapping, and separator placement.
 - Prevented GUI tests from corrupting real save files by using temporary test file paths (e.g., `build/tmp/test-john.txt`).
 
@@ -137,4 +136,3 @@ From now on, including this prompt, modify AI.md for each signifcant prompt I gi
 - `src/test/java/john/StorageTest.java`
 - `src/test/java/john/ParserTest.java`
 - `src/test/java/john/ui/UiTest.java`
-- `src/test/java/john/ui/MainWindowTest.java`

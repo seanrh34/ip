@@ -22,7 +22,8 @@ public class Main extends Application {
             AnchorPane ap = fxmlLoader.load();
             Scene scene = new Scene(ap);
             stage.setScene(scene);
-            fxmlLoader.<MainWindow>getController().setJohn(john); // inject the John instance
+            stage.setTitle("JohnChatBot");
+            fxmlLoader.<MainWindow>getController().setJohn(john);
             stage.show();
         } catch (IOException e) {
             throw new RuntimeException("Failed to load FXML file", e);
