@@ -1,4 +1,4 @@
-package john;
+package john.tasks;
 
 /**
  * ToDos are tasks which do not hany special attributes, recognised with the letter 'T' in displays.

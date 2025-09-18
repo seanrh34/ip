@@ -1,5 +1,11 @@
 package john;
 
+import john.data.Storage;
+import john.tasks.Deadline;
+import john.tasks.Event;
+import john.tasks.Task;
+import john.tasks.ToDo;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;

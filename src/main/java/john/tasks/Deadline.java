@@ -1,4 +1,4 @@
-package john;
+package john.tasks;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

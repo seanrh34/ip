@@ -1,4 +1,4 @@
-package john;
+package john.exceptions;
 
 public class JohnException extends Exception {
 

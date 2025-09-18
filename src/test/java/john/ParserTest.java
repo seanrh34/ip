@@ -1,5 +1,10 @@
 package john;
 
+import john.command.Parser;
+import john.exceptions.JohnException;
+import john.tasks.Deadline;
+import john.tasks.Event;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

@@ -1,4 +1,8 @@
-package john;
+package john.data;
+
+import john.tasks.Deadline;
+import john.tasks.Event;
+import john.tasks.Task;
 
 import java.util.ArrayList;
 import java.util.Comparator;

@@ -1,4 +1,4 @@
-package john;
+package john.tasks;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -34,9 +34,9 @@ public class Event extends Task {
 
     @Override
     public String toFileFormatString() {
-        String from_string = this.from.format(DISPLAY);
-        String to_string = this.to.format(DISPLAY);
-        return "E | " + super.toFileFormatString() + " | From: " + from_string + " | To: " + to_string;
+        String fromString = this.from.format(DISPLAY);
+        String toString = this.to.format(DISPLAY);
+        return "E | " + super.toFileFormatString() + " | From: " + fromString + " | To: " + toString;
     }
 
     @Override

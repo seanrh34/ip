@@ -7,12 +7,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import john.ui.MainWindow;
 
 /**
  * Entry point for JavaFX UI.
  */
 public class Main extends Application {
-    private John john = new John("data/johnChatBot.txt");
+    private final John john = new John("data/johnChatBot.txt");
 
     @Override
     public void start(Stage stage) throws IOException {

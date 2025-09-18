@@ -1,4 +1,4 @@
-package john;
+package john.ui;
 
 import java.io.IOException;
 import java.util.Collections;

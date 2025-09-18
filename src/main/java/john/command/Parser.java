@@ -1,4 +1,4 @@
-package john;
+package john.command;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -6,6 +6,12 @@ import java.time.format.DateTimeParseException;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import john.exceptions.JohnException;
+import john.tasks.Deadline;
+import john.tasks.Event;
+import john.tasks.Task;
+import john.tasks.ToDo;
 
 /**
  * Class to parse user commands and transform them into structured actions or new tasks.
@@ -61,9 +67,10 @@ public final class Parser {
 
     /**
      * Function to sort tasks
-     * @param s
-     * @return
-     * @throws JohnException
+     *
+     * @param s a string of the user's input command that starts with /sort
+     * @return Parsed version of the string s to create a Task from
+     * @throws JohnException if the format of s is invalid
      */
     private static Parsed parseSort(String s) throws JohnException {
         Matcher m = SORT_PATTERN.matcher(s.strip());
@@ -73,8 +80,10 @@ public final class Parser {
         String key = m.group(1).toLowerCase(Locale.ROOT); // "deadline" or "event"
         return Parsed.sort(key);
     }
+
     /**
      * Function to handle the "find" keyword in the above switch case bracket
+     *
      * @param s a string
      * @return Parsed object
      * @throws JohnException if the format is invalid
@@ -90,9 +99,11 @@ public final class Parser {
         }
         return Parsed.find(keyword);
     }
+
     /**
      * Function to handle "mark", "unmark", and "delete" keywords
-     * @param s String s
+     *
+     * @param s   String s
      * @param cmd String
      * @return Parsed object
      * @throws JohnException if format is invalid or index is invalid
@@ -121,6 +132,7 @@ public final class Parser {
 
     /**
      * Function to handle "todo" keyword
+     *
      * @param s a string
      * @throws JohnException for invalid formats
      */
@@ -138,6 +150,7 @@ public final class Parser {
 
     /**
      * Function to handle "deadline" keyword
+     *
      * @param s a string
      * @return Parsed object
      * @throws JohnException if the format of s is wrong
@@ -161,6 +174,7 @@ public final class Parser {
 
     /**
      * Function to handle "event" keyword
+     *
      * @param s a string
      * @return Parsed object
      * @throws JohnException if the format of s is invalid
@@ -307,6 +321,7 @@ public final class Parser {
 
         /**
          * Function to sort parsed objects based on deadline/event
+         *
          * @param key deadline/event by/from
          * @return sorted parsed
          */

@@ -1,4 +1,4 @@
-package john;
+package john.ui;
 
 import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
@@ -18,7 +18,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
+import john.John;
 
 /**
  * Controller for the main GUI

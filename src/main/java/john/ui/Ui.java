@@ -1,7 +1,10 @@
-package john;
+package john.ui;
 
-import java.util.Scanner;
 import java.util.List;
+import java.util.Scanner;
+
+import john.data.TaskList;
+import john.tasks.Task;
 
 /**
  * Class to handle all user interactions such as printing messages and reading commands.
@@ -38,6 +41,7 @@ public class Ui {
 
     /**
      * Function to read the next command line from user input.
+     *
      * @return the raw string command entered by the user
      */
     public String readCommand() {
@@ -46,6 +50,7 @@ public class Ui {
 
     /**
      * Function to check if there is more input available from the user.
+     *
      * @return true if more input exists, otherwise false
      */
     public boolean hasNextLine() {
@@ -54,6 +59,7 @@ public class Ui {
 
     /**
      * Function to print an error message to the user.
+     *
      * @param message the error message to display
      */
     public void showError(String message) {
@@ -63,6 +69,7 @@ public class Ui {
     /**
      * Function to print the results of a find operation.
      * If no tasks match, a friendly message is shown.
+     *
      * @param matches the list of tasks that matched the query
      */
     public void showFound(List<Task> matches) {
@@ -78,7 +85,8 @@ public class Ui {
 
     /**
      * Function to inform the user that a task was added and display task count.
-     * @param t the task that was added
+     *
+     * @param t    the task that was added
      * @param size the current number of tasks in the list
      */
     public void showAdded(Task t, int size) {
@@ -88,6 +96,7 @@ public class Ui {
 
     /**
      * Function to print all tasks in the task list to the user.
+     *
      * @param tasks the task list wrapper containing tasks
      */
     public void showList(TaskList tasks) {
@@ -99,6 +108,7 @@ public class Ui {
 
     /**
      * Function to inform the user that a task was marked as done.
+     *
      * @param t the task that was marked
      */
     public void showMarked(Task t) {
@@ -107,6 +117,7 @@ public class Ui {
 
     /**
      * Function to inform the user that a task was marked as not done.
+     *
      * @param t the task that was unmarked
      */
     public void showUnmarked(Task t) {
@@ -115,8 +126,9 @@ public class Ui {
 
     /**
      * Function to inform the user that a task was deleted and display task count.
+     *
      * @param removed the task that was removed
-     * @param size the current number of tasks in the list
+     * @param size    the current number of tasks in the list
      */
     public void showDeleted(Task removed, int size) {
         System.out.println("Noted. I've removed this task:\n" + removed);
@@ -127,15 +139,15 @@ public class Ui {
      * Function to print a help message listing valid commands and expected formats.
      */
     public void showHelp() {
-        System.out.println("This command is not recognised, here is the list of valid inputs:\n" +
-                "1. bye - Exit the chatbot\n" +
-                "2. list - List all current tasks\n" +
-                "3. mark <task_number> - Mark a task as done\n" +
-                "4. unmark <task_number> - Mark a task as not done\n" +
-                "5. delete <task_number> - Delete a task\n" +
-                "6. todo <task_name>\n" +
-                "7. deadline <task_name> /by <DD/MM/YYYY HHMM>\n" +
-                "8. event <task_name> /from <DD/MM/YYYY HHMM> /to <DD/MM/YYYY HHMM>\n"
+        System.out.println("This command is not recognised, here is the list of valid inputs:\n"
+                + "1. bye - Exit the chatbot\n"
+                + "2. list - List all current tasks\n"
+                + "3. mark <task_number> - Mark a task as done\n"
+                + "4. unmark <task_number> - Mark a task as not done\n"
+                + "5. delete <task_number> - Delete a task\n"
+                + "6. todo <task_name>\n"
+                + "7. deadline <task_name> /by <DD/MM/YYYY HHMM>\n"
+                + "8. event <task_name> /from <DD/MM/YYYY HHMM> /to <DD/MM/YYYY HHMM>\n"
         );
     }
 }

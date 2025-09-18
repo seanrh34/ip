@@ -1,4 +1,4 @@
-package john;
+package john.data;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -12,6 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import john.tasks.Deadline;
+import john.tasks.Event;
+import john.tasks.Task;
+import john.tasks.ToDo;
 
 /**
  * Class to help JohnChatBot manage its task history by storing them in the hard disk
@@ -135,7 +140,7 @@ public class Storage {
      * Function to decode a Deadline in string representation (lines)
      * @param desc string for description of Deadline
      * @param parts array of a string representation of Deadline, separated
-     * @return
+     * @return an Optional of tasks
      */
     private static Optional<Task> decodeDeadline(String desc, String[] parts) {
         if (parts.length < 4 || desc.isEmpty()) {
@@ -184,8 +189,8 @@ public class Storage {
     }
     /**
      * mark a Task as done
-     * @param t
-     * @param isDone
+     * @param t a task to be marked as done
+     * @param isDone boolean value of true == done
      */
     private static void applyDoneFlag(Task t, boolean isDone) {
         if (isDone) {
