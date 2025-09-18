@@ -28,9 +28,9 @@ public final class Parser {
     // Matches "find <keyword>"
     private static final Pattern FIND_PATTERN =
             Pattern.compile("^find\\s+(.+)$", Pattern.CASE_INSENSITIVE);
-    // Matches "sort <task_type>"
+    // Matches "sort <task_type>" or "/sort <task_type>"
     private static final Pattern SORT_PATTERN =
-            Pattern.compile("^?sort\\s+(deadline|event)$", Pattern.CASE_INSENSITIVE);
+            Pattern.compile("^/?sort\\s+(deadline|event)$", Pattern.CASE_INSENSITIVE);
     // Matches "todo <task_name>"
     private static final Pattern TODO_PATTERN =
             Pattern.compile("^todo\\s+(.+)$", Pattern.CASE_INSENSITIVE);
@@ -55,7 +55,7 @@ public final class Parser {
         case "bye" -> Parsed.exit();
         case "list" -> Parsed.list();
         case "help" -> Parsed.help();
-        case "sort" -> parseSort(s);
+        case "sort", "/sort" -> parseSort(s);
         case "find" -> parseFind(s);
         case "mark", "unmark", "delete" -> parseModify(s, cmd);
         case "todo" -> parseTodo(s);
@@ -75,7 +75,7 @@ public final class Parser {
     private static Parsed parseSort(String s) throws JohnException {
         Matcher m = SORT_PATTERN.matcher(s.strip());
         if (!m.matches()) {
-            throw new JohnException("Invalid format. Usage: /sort deadline | /sort event");
+            throw new JohnException("Invalid format. Usage: sort deadline | sort event | /sort deadline | /sort event");
         }
         String key = m.group(1).toLowerCase(Locale.ROOT); // "deadline" or "event"
         return Parsed.sort(key);

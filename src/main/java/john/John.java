@@ -81,14 +81,18 @@ public class John {
      */
     private String handleSort(Parser.Parsed p) {
         List<Task> view;
+        String header;
         if ("deadline".equalsIgnoreCase(p.query)) {
             view = tasks.sortedViewDeadlineFirst();
+            header = "Displaying tasks sorted by earliest deadline";
         } else if ("event".equalsIgnoreCase(p.query)) {
             view = tasks.sortedViewEventFirst();
+            header = "Displaying tasks sorted by earliest event";
         } else {
-            return "Unknown sort key. Use \"/sort deadline\" or \"/sort event\".";
+            return "Unknown sort key. Use \"sort deadline\" or \"sort event\".";
         }
-        return tasks.toDisplayString(view);
+        String taskList = tasks.toDisplayStringWithoutNumbers(view);
+        return header + "\n" + taskList;
     }
 
     /**
@@ -219,8 +223,8 @@ public class John {
                 "",
                 "Search",
                 "  find <keyword>                - Find tasks containing the keyword",
-                "  sort deadline                 - Sort by earliest deadline",
-                "  sort event                    - Sort by earliest event"
+                "  sort deadline                 - Sort by earliest deadline (no numbering)",
+                "  sort event                    - Sort by earliest event (no numbering)"
         );
     }
 

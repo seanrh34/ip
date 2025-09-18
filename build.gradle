@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'application'
     id 'checkstyle'
     id 'org.openjfx.javafxplugin' version '0.1.0'
@@ -7,6 +8,10 @@ plugins {
 
 checkstyle {
     toolVersion = '11.0.0'
+}
+
+shadowJar {
+    archiveFileName = 'ip.jar'
 }
 
 repositories { mavenCentral() }
@@ -59,7 +64,7 @@ tasks.run {
 jar {
     manifest {
         attributes(
-                'Main-Class': 'john.JohnChatBot'
+                'Main-Class': 'john.Launcher'
         )
     }
 }

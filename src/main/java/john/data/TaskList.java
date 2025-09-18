@@ -166,6 +166,26 @@ public class TaskList {
     }
 
     /**
+     * Renders an arbitrary task list view without numbering for sorted displays.
+     *
+     * @param view tasks to render in order
+     * @return formatted string without numbers
+     */
+    public String toDisplayStringWithoutNumbers(List<Task> view) {
+        if (view == null || view.isEmpty()) {
+            return "No tasks in your list.";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < view.size(); i++) {
+            sb.append(view.get(i));
+            if (i < view.size() - 1) {
+                sb.append("\n");
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
      * Renders an arbitrary task list view using the same format as {@link #toDisplayString()}.
      *
      * @param view tasks to render in order
