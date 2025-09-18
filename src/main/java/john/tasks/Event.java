@@ -13,8 +13,11 @@ public class Event extends Task {
     private final LocalDateTime to;
 
     /**
-     * This method creates a new instance of an Event which uses the constructor of Task but also assigns the
-     * attributes from and to into the instance
+     * Constructs a new Event task with the specified description and time range.
+     * 
+     * @param description The description of the event.
+     * @param from The start date and time of the event.
+     * @param to The end date and time of the event.
      */
     public Event(String description, LocalDateTime from, LocalDateTime to) {
         super(description);
@@ -24,10 +27,20 @@ public class Event extends Task {
         this.to = to;
     }
 
+    /**
+     * Returns the start date and time of this event.
+     * 
+     * @return The start date and time.
+     */
     public LocalDateTime getFrom() {
         return this.from;
     }
 
+    /**
+     * Returns the end date and time of this event.
+     * 
+     * @return The end date and time.
+     */
     public LocalDateTime getTo() {
         return this.to;
     }

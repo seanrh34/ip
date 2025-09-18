@@ -12,8 +12,10 @@ public class Deadline extends Task {
     private final LocalDateTime by;
 
     /**
-     * This method creates an instance of a Deadline which uses the engine of Task but also assigns the string "by"
-     * upon calling it with a given object
+     * Constructs a new Deadline task with the specified description and due date.
+     * 
+     * @param description The description of the deadline task.
+     * @param by The date and time by which this task must be completed.
      */
     public Deadline(String description, LocalDateTime by) {
         super(description);
@@ -21,6 +23,11 @@ public class Deadline extends Task {
         this.by = by;
     }
 
+    /**
+     * Returns the date and time by which this task must be completed.
+     * 
+     * @return The deadline date and time.
+     */
     public LocalDateTime getBy() {
         return this.by;
     }

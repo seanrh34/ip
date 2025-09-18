@@ -9,8 +9,10 @@ public class Task {
     protected boolean isDone;
 
     /**
-     * Function to create a new instance of a basic Task
-     * @param description
+     * Constructs a new Task with the specified description.
+     * The task is initially marked as not done.
+     * 
+     * @param description The description of the task.
      */
     public Task(String description) {
         assert description != null : "description cannot be null";
@@ -19,38 +21,50 @@ public class Task {
     }
 
     /**
-     * Function to get the icon that shows whether a task is done or not
-     * @return
+     * Returns the icon that shows whether a task is done or not.
+     * 
+     * @return "X" if the task is done, " " (space) if not done.
      */
     public String getStatusIcon() {
         return (isDone ? "X" : " "); // mark done task with X
     }
 
+    /**
+     * Returns the description of this task.
+     * 
+     * @return The task description.
+     */
     public String getDesc() {
         return this.description;
     }
 
+    /**
+     * Returns whether this task is marked as done.
+     * 
+     * @return True if the task is done, false otherwise.
+     */
     public boolean getIsDone() {
         return this.isDone;
     }
 
     /**
-     * Function to mark a task as done
+     * Marks this task as done.
      */
     public void mark() {
         this.isDone = true;
     }
 
     /**
-     * Function to mark a task as NOT done
+     * Marks this task as not done.
      */
     public void unmark() {
         this.isDone = false;
     }
 
     /**
-     * Function to return a string representation of the task in a format compatible with the .txt storage
-     * @return
+     * Returns a string representation of the task in a format compatible with file storage.
+     * 
+     * @return A formatted string containing the task's done status and description.
      */
     public String toFileFormatString() {
         String doneStr = "";

@@ -1,12 +1,15 @@
 package john.tasks;
 
 /**
- * ToDos are tasks which do not hany special attributes, recognised with the letter 'T' in displays.
+ * Represents a basic todo task without any special attributes.
+ * ToDos are recognised with the letter 'T' in displays.
  */
 public class ToDo extends Task {
 
     /**
-     * This method creates a new instance of ToDo which uses the constructor method from Task
+     * Constructs a new ToDo task with the specified description.
+     * 
+     * @param description The description of the todo task.
      */
     public ToDo(String description) {
         super(description);

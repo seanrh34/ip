@@ -60,3 +60,36 @@ From now on, including this prompt, modify AI.md for each signifcant prompt I gi
 - john.ui package: Ui.java, MainWindow.java, DialogBox.java
 - john.exceptions package: JohnException.java
 - john root: John.java, JohnChatBot.java, Main.java, Launcher.java
+
+## 3. 18 September 2025: Comprehensive Javadoc Documentation Implementation
+
+### Prompt: Check all of the methods and classes in the repo, ensure that each and every one of them EXCEPT for getters and setters, as well as overrrides that do not change their meaning has Javadoc comments according to the following standards:
+
+[...detailed Javadoc standards...]
+
+### Improvements made:
+
+- Audited all Java files for missing Javadoc documentation
+- Added proper class-level Javadoc to JohnException with detailed description of purpose
+- Enhanced all method Javadoc comments to follow proper format with:
+  - Opening /** on separate line
+  - Descriptive first sentence starting with action verbs (Returns, Constructs, etc.)
+  - Proper @param descriptions with punctuation
+  - Complete @return descriptions where applicable
+  - Consistent English spelling and professional tone
+- Fixed incomplete @return tags throughout the codebase
+- Improved constructor documentation with clear parameter descriptions
+- Enhanced class documentation for UI components (MainWindow, DialogBox)
+- Ensured all public methods have complete documentation while respecting exemptions for getters/setters and simple overrides
+- Verified all Javadoc follows the specified format standards
+
+### Files modified:
+
+**Javadoc improvements:**
+- src/main/java/john/exceptions/JohnException.java (added class and constructor documentation)
+- src/main/java/john/tasks/Task.java (improved method documentation and @return tags)
+- src/main/java/john/tasks/ToDo.java (fixed typo, enhanced class and constructor docs)
+- src/main/java/john/tasks/Deadline.java (improved constructor and getter documentation)
+- src/main/java/john/tasks/Event.java (enhanced constructor and getter documentation)
+- src/main/java/john/ui/MainWindow.java (added class documentation and setJohn method docs)
+- src/main/java/john/ui/DialogBox.java (improved class, constructor, and static method documentation)

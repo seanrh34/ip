@@ -21,7 +21,8 @@ import javafx.util.Duration;
 import john.John;
 
 /**
- * Controller for the main GUI
+ * Controller for the main GUI window of the John ChatBot application.
+ * Manages user input, displays chat messages, and handles application shutdown.
  */
 @SuppressWarnings("checkstyle:Regexp")
 public class MainWindow extends AnchorPane {
@@ -142,6 +143,11 @@ public class MainWindow extends AnchorPane {
         }
     }
 
+    /**
+     * Sets the John instance for this window and displays a welcome message.
+     * 
+     * @param j The John chatbot instance to associate with this window.
+     */
     public void setJohn(John j) {
         this.john = j;
         dialogContainer.getChildren().add(DialogBox.ofJohn("John ChatBot \uD83D\uDDFF has arrived.\n"

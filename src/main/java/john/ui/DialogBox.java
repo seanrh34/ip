@@ -15,7 +15,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 
 /**
- * Simple dialog bubble for user and John messages.
+ * Represents a dialog bubble for displaying messages in the chat interface.
+ * Contains both user and John chatbot messages with appropriate avatars and styling.
  */
 public class DialogBox extends HBox {
 
@@ -28,10 +29,11 @@ public class DialogBox extends HBox {
     private ImageView displayPicture;
 
     /**
-     * Dialog Box creation, which is for the conversation with the chatbot GUI
-     * @param message
-     * @param avatar
-     * @param isUser
+     * Constructs a DialogBox for the conversation with the chatbot GUI.
+     * 
+     * @param message The text message to display.
+     * @param avatar The image to show as the avatar.
+     * @param isUser True if this dialog box represents a user message, false for bot.
      */
     private DialogBox(String message, Image avatar, boolean isUser) {
         try {
@@ -59,9 +61,10 @@ public class DialogBox extends HBox {
     }
 
     /**
-     * reates a new DialogBox for the User's message.
-     * @param message Message sent by the user
-     * @return returns a DialogBox
+     * Creates a new DialogBox for the user's message.
+     * 
+     * @param message The message sent by the user.
+     * @return A DialogBox configured for user display.
      */
     public static DialogBox ofUser(String message) {
         return new DialogBox(message, USER, true);
@@ -69,8 +72,9 @@ public class DialogBox extends HBox {
 
     /**
      * Creates a new DialogBox for John the chatbot.
-     * @param message Message to be sent by John
-     * @return returns a DialogBox
+     * 
+     * @param message The message to be sent by John.
+     * @return A DialogBox configured for John's display.
      */
     public static DialogBox ofJohn(String message) {
         DialogBox johnDb = new DialogBox(message, JOHN, false);
