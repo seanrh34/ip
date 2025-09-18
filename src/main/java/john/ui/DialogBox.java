@@ -2,6 +2,7 @@ package john.ui;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Objects;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -20,9 +21,12 @@ import javafx.scene.layout.HBox;
  */
 public class DialogBox extends HBox {
 
-    private static final Image USER = new Image(DialogBox.class.getResourceAsStream("/images/you_dancing.gif"));
-    private static final Image JOHN = new Image(DialogBox.class.getResourceAsStream("/images/john_dancing.gif"));
-
+    private static final Image USER = new Image(
+            Objects.requireNonNull(DialogBox.class.getResourceAsStream("/images/you_dancing.gif"))
+    );
+    private static final Image JOHN = new Image(
+            Objects.requireNonNull(DialogBox.class.getResourceAsStream("/images/john_dancing.gif"))
+    );
     @FXML
     private Label dialog;
     @FXML
@@ -30,7 +34,6 @@ public class DialogBox extends HBox {
 
     /**
      * Constructs a DialogBox for the conversation with the chatbot GUI.
-     * 
      * @param message The text message to display.
      * @param avatar The image to show as the avatar.
      * @param isUser True if this dialog box represents a user message, false for bot.
@@ -62,7 +65,6 @@ public class DialogBox extends HBox {
 
     /**
      * Creates a new DialogBox for the user's message.
-     * 
      * @param message The message sent by the user.
      * @return A DialogBox configured for user display.
      */
@@ -72,7 +74,6 @@ public class DialogBox extends HBox {
 
     /**
      * Creates a new DialogBox for John the chatbot.
-     * 
      * @param message The message to be sent by John.
      * @return A DialogBox configured for John's display.
      */

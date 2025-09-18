@@ -1,14 +1,14 @@
 package john;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.List;
+
 import john.command.Parser;
 import john.data.Storage;
 import john.data.TaskList;
 import john.exceptions.JohnException;
 import john.tasks.Task;
-
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.List;
 
 /**
  * GUI-facing facade that maintains state and returns textual responses.
@@ -19,8 +19,7 @@ public class John {
 
     /**
      * John class
-     *
-     * @param filePath
+     * @param filePath the path for the .txt file saving the tasks
      */
     public John(String filePath) {
         this.storage = new Storage(Path.of(filePath));

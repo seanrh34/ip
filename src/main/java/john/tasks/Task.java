@@ -11,7 +11,6 @@ public class Task {
     /**
      * Constructs a new Task with the specified description.
      * The task is initially marked as not done.
-     * 
      * @param description The description of the task.
      */
     public Task(String description) {
@@ -22,7 +21,6 @@ public class Task {
 
     /**
      * Returns the icon that shows whether a task is done or not.
-     * 
      * @return "X" if the task is done, " " (space) if not done.
      */
     public String getStatusIcon() {
@@ -31,7 +29,6 @@ public class Task {
 
     /**
      * Returns the description of this task.
-     * 
      * @return The task description.
      */
     public String getDesc() {
@@ -40,7 +37,6 @@ public class Task {
 
     /**
      * Returns whether this task is marked as done.
-     * 
      * @return True if the task is done, false otherwise.
      */
     public boolean getIsDone() {
@@ -63,11 +59,10 @@ public class Task {
 
     /**
      * Returns a string representation of the task in a format compatible with file storage.
-     * 
      * @return A formatted string containing the task's done status and description.
      */
     public String toFileFormatString() {
-        String doneStr = "";
+        String doneStr;
 
         if (this.isDone) {
             doneStr = "Done";

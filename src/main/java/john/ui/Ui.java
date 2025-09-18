@@ -134,20 +134,4 @@ public class Ui {
         System.out.println("Noted. I've removed this task:\n" + removed);
         System.out.println("Now you have " + size + " task(s) in the list.");
     }
-
-    /**
-     * Function to print a help message listing valid commands and expected formats.
-     */
-    public void showHelp() {
-        System.out.println("This command is not recognised, here is the list of valid inputs:\n"
-                + "1. bye - Exit the chatbot\n"
-                + "2. list - List all current tasks\n"
-                + "3. mark <task_number> - Mark a task as done\n"
-                + "4. unmark <task_number> - Mark a task as not done\n"
-                + "5. delete <task_number> - Delete a task\n"
-                + "6. todo <task_name>\n"
-                + "7. deadline <task_name> /by <DD/MM/YYYY HHMM>\n"
-                + "8. event <task_name> /from <DD/MM/YYYY HHMM> /to <DD/MM/YYYY HHMM>\n"
-        );
-    }
 }

@@ -16,7 +16,7 @@ public class Main extends Application {
     private final John john = new John("data/johnChatBot.txt");
 
     @Override
-    public void start(Stage stage) throws IOException {
+    public void start(Stage stage) {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/view/MainWindow.fxml"));
             AnchorPane ap = fxmlLoader.load();
@@ -25,7 +25,7 @@ public class Main extends Application {
             fxmlLoader.<MainWindow>getController().setJohn(john); // inject the John instance
             stage.show();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Failed to load FXML file", e);
         }
     }
 }

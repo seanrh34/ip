@@ -13,7 +13,6 @@ public class Deadline extends Task {
 
     /**
      * Constructs a new Deadline task with the specified description and due date.
-     * 
      * @param description The description of the deadline task.
      * @param by The date and time by which this task must be completed.
      */
@@ -25,7 +24,6 @@ public class Deadline extends Task {
 
     /**
      * Returns the date and time by which this task must be completed.
-     * 
      * @return The deadline date and time.
      */
     public LocalDateTime getBy() {
@@ -34,8 +32,8 @@ public class Deadline extends Task {
 
     @Override
     public String toFileFormatString() {
-        String by_string = by.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
-        return "D | " + (isDone ? "Done" : "Not Done") + " | " + description + " | By: " + by_string;
+        String byString = by.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
+        return "D | " + (isDone ? "Done" : "Not Done") + " | " + description + " | By: " + byString;
     }
 
     @Override

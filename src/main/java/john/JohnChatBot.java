@@ -1,15 +1,15 @@
 package john;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.List;
+
 import john.command.Parser;
 import john.data.Storage;
 import john.data.TaskList;
 import john.exceptions.JohnException;
 import john.tasks.Task;
 import john.ui.Ui;
-
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.List;
 
 /**
  * Class to initialize the UI, Storage, and TaskList, and to start the chatbot application loop.
@@ -91,7 +91,7 @@ public class JohnChatBot {
      * @param p The parsed command.
      * @return {@code true} if the command requests application exit; {@code false} otherwise.
      * @throws IOException   If persisting tasks fails in a handler that modifies tasks.
-     * @throws JohnException If a command requires a valid index and it is out of range.
+     * @throws JohnException If a command requires a valid index, and it is out of range.
      */
     private boolean processCommand(Parser.Parsed p) throws IOException, JohnException {
         return switch (p.kind) {

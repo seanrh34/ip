@@ -14,7 +14,6 @@ public class Event extends Task {
 
     /**
      * Constructs a new Event task with the specified description and time range.
-     * 
      * @param description The description of the event.
      * @param from The start date and time of the event.
      * @param to The end date and time of the event.
@@ -29,7 +28,6 @@ public class Event extends Task {
 
     /**
      * Returns the start date and time of this event.
-     * 
      * @return The start date and time.
      */
     public LocalDateTime getFrom() {
@@ -38,7 +36,6 @@ public class Event extends Task {
 
     /**
      * Returns the end date and time of this event.
-     * 
      * @return The end date and time.
      */
     public LocalDateTime getTo() {

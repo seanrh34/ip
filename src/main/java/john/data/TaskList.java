@@ -1,13 +1,13 @@
 package john.data;
 
-import john.tasks.Deadline;
-import john.tasks.Event;
-import john.tasks.Task;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import john.tasks.Deadline;
+import john.tasks.Event;
+import john.tasks.Task;
 
 /**
  * Class to wrap and manage the list of tasks, providing operations to mutate and access tasks.
@@ -120,11 +120,11 @@ public class TaskList {
                 .map(t -> (Deadline) t)
                 .sorted(Comparator.comparing(Deadline::getBy))
                 .map(t -> (Task) t)
-                .collect(Collectors.toList());
+                .toList();
 
         List<Task> others = tasks.stream()
                 .filter(t -> !(t instanceof Deadline))
-                .collect(Collectors.toList());
+                .toList();
 
         List<Task> out = new ArrayList<>(tasks.size());
         out.addAll(deadlines);
@@ -144,11 +144,11 @@ public class TaskList {
                 .map(t -> (Event) t)
                 .sorted(Comparator.comparing(Event::getFrom))
                 .map(t -> (Task) t)
-                .collect(Collectors.toList());
+                .toList();
 
         List<Task> others = tasks.stream()
                 .filter(t -> !(t instanceof Event))
-                .collect(Collectors.toList());
+                .toList();
 
         List<Task> out = new ArrayList<>(tasks.size());
         out.addAll(events);

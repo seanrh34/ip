@@ -145,7 +145,6 @@ public class MainWindow extends AnchorPane {
 
     /**
      * Sets the John instance for this window and displays a welcome message.
-     * 
      * @param j The John chatbot instance to associate with this window.
      */
     public void setJohn(John j) {
