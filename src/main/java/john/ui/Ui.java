@@ -8,6 +8,8 @@ import john.tasks.Task;
 
 /**
  * Class to handle all user interactions such as printing messages and reading commands.
+ * Note that this class is just a fallback for the GUI does not work.
+ * It is not actually the main form of user interface of this app.
  */
 public class Ui {
     private static final String DIVIDER = "=================================================\n";
@@ -63,7 +65,7 @@ public class Ui {
      * @param message the error message to display
      */
     public void showError(String message) {
-        System.out.println(message);
+        System.out.print("Error: " + message);
     }
 
     /**

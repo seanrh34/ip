@@ -118,3 +118,23 @@ From now on, including this prompt, modify AI.md for each signifcant prompt I gi
 - All Java files in src/main/java/john/ (no changes required - already SLAP compliant)
 - Verified: Task hierarchy, Storage operations, Parser logic, UI components, Exception handling
 - Result: Codebase demonstrates excellent SLAP adherence with proper method decomposition and abstraction levels
+
+## 5. 18 September 2025: Added JUnit tests for Storage, Parser, Ui, and MainWindow
+
+### Prompt: Generate and refine JUnit tests for the chatbot system, ensuring compliance with checkstyle.xml and handling GUI-related issues.
+
+### Improvements made:
+
+- Added **StorageTest.java** to verify save/load round-trip functionality with ToDo, Deadline, and Event tasks (including LocalDateTime and done status persistence).
+- Added **ParserTest.java** to validate command parsing for deadlines and events, including strict date-time parsing and invalid format handling.
+- Added **UiTest.java** to test `Ui.showWelcome()` and `Ui.showError()`, with adjustments for correct message expectations.
+- Added **MainWindowTest.java** to test FXML loading and `setJohn()` injection for GUI controller, ensuring thread-safety with `Platform.runLater` and `WaitForAsyncUtils`.
+- Resolved Checkstyle errors: enforced explicit imports (no `*`), corrected indentation, spacing, operator wrapping, and separator placement.
+- Prevented GUI tests from corrupting real save files by using temporary test file paths (e.g., `build/tmp/test-john.txt`).
+
+### Files modified:
+
+- `src/test/java/john/StorageTest.java`
+- `src/test/java/john/ParserTest.java`
+- `src/test/java/john/ui/UiTest.java`
+- `src/test/java/john/ui/MainWindowTest.java`
