@@ -169,7 +169,7 @@ Examples:
 ## Getting Started
 
 1. Download the latest release of John ChatBot
-2. Run the application using `java -jar ip.jar`
+2. Run the application using `java -jar JohnChatBot.jar`
 3. Start managing your tasks with the commands above!
 
 Your tasks are automatically saved to `data/johnChatBot.txt` and will be loaded when you restart the application.
