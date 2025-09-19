@@ -11,7 +11,7 @@ checkstyle {
 }
 
 shadowJar {
-    archiveFileName = 'ip.jar'
+    archiveFileName = 'JohnChatBot.jar'
 }
 
 repositories { mavenCentral() }
