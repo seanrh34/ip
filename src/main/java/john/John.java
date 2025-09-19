@@ -124,7 +124,7 @@ public class John {
     private String handleAdd(Parser.Parsed p) throws IOException {
         tasks.add(p.task);
         saveTasks();
-        return "Acknowledge. John \uD83D\uDDFF has added this task:\n  " + p.task
+        return "Acknowledged. John \uD83D\uDDFF has added this task:\n  " + p.task
                 + "\nNow you have " + tasks.size()
                 + " tasks in the list.";
     }
@@ -182,7 +182,7 @@ public class John {
      * @return Either a rendered list of matches or a “no matches” message.
      */
     private String handleFind(Parser.Parsed p) {
-        TaskList filtered = (TaskList) tasks.find(p.query);
+        TaskList filtered = new TaskList(tasks.find(p.query));
         return filtered.size() == 0
                 ? "John \uD83D\uDDFF can't find matching tasks for \"" + p.query + "\" and John is never wrong."
                 : filtered.toDisplayString();

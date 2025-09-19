@@ -132,7 +132,10 @@ Example: `sort deadline`
 
 Expected output:
 ```
-Tasks sorted by deadline dates.
+Displaying tasks sorted by earliest deadline
+[D][ ] return book (by: Aug 28 2025)
+[D][ ] submit cs2103t ip (by: Sep 19 2025)
+[T][ ] read book
 ```
 
 ### Getting Help
@@ -150,7 +153,7 @@ Format: `bye`
 ## Task Format Legend
 
 - `[T]` - Todo
-- `[D]` - Deadline  
+- `[D]` - Deadline
 - `[E]` - Event
 - `[X]` - Completed task
 - `[ ]` - Incomplete task
